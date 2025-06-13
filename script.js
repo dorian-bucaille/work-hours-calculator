@@ -1,0 +1,217 @@
+document.addEventListener('DOMContentLoaded', () => {
+    const timeForm = document.getElementById('time-form');
+    const dateInput = document.getElementById('date-input');
+    const goalInput = document.getElementById('goal-input');
+    const startMorningInput = document.getElementById('start-morning');
+    const endMorningInput = document.getElementById('end-morning');
+    const startAfternoonInput = document.getElementById('start-afternoon');
+    const endAfternoonInput = document.getElementById('end-afternoon');
+    const balanceSign = document.getElementById('balance-sign');
+    const balanceHHMM = document.getElementById('balance-hhmm');
+    const resultDiv = document.getElementById('result');
+    const historyList = document.getElementById('history-list');
+    const clearHistoryBtn = document.getElementById('clear-history');
+    const historyContainer = document.getElementById('history-container');
+    const historyTitle = historyContainer.querySelector('h2');
+
+    // Pré-remplir la date du jour
+    dateInput.valueAsDate = new Date();
+    goalInput.value = localStorage.getItem('workHoursGoal') || '07:22';
+
+    // Chargement du dernier solde depuis localStorage
+    const lastBalance = localStorage.getItem('workHoursBalance');
+    if (lastBalance) {
+        const match = lastBalance.match(/([+-])(\d{2}):(\d{2})/);
+        if (match) {
+            balanceSign.value = match[1];
+            balanceHHMM.value = `${parseInt(match[2], 10)}:${match[3]}`;
+        }
+    }
+    
+    const history = JSON.parse(localStorage.getItem('workHoursHistory')) || [];
+    history.forEach((item, idx) => addHistoryEntry(item, idx));
+    updateHistoryVisibility();
+
+    timeForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        resultDiv.style.display = 'block';
+
+        const timeValues = {
+            startMorning: startMorningInput.value,
+            endMorning: endMorningInput.value,
+            startAfternoon: startAfternoonInput.value,
+            endAfternoon: endAfternoonInput.value,
+        };
+        const dateValue = dateInput.value;
+        const goalString = goalInput.value;
+        localStorage.setItem('workHoursGoal', goalString);
+        const dailyGoalMinutes = parseHHMM(goalString);
+        const currentBalanceString = `${balanceSign.value}${balanceHHMM.value.padStart(5, '0')}`;
+
+        try {
+            const workedMinutes = calculateWorkedMinutes(timeValues);
+            const dailyDiffMinutes = workedMinutes - dailyGoalMinutes;
+            const currentBalanceMinutes = parseBalance(currentBalanceString);
+            const newBalanceMinutes = currentBalanceMinutes + dailyDiffMinutes;
+
+            const newBalanceString = formatMinutesToSignedHours(newBalanceMinutes);
+            
+            const summaryLine = generateSummaryLine(dateValue, timeValues, workedMinutes, dailyDiffMinutes, newBalanceMinutes, goalString);
+
+            // Save new balance and history to localStorage
+            localStorage.setItem('workHoursBalance', newBalanceString);
+            history.push(summaryLine);
+            localStorage.setItem('workHoursHistory', JSON.stringify(history));
+
+            displayResult(workedMinutes, dailyDiffMinutes, newBalanceString, summaryLine, goalString);
+            addHistoryEntry(summaryLine);
+            
+            // Clear time inputs for the next entry
+            timeForm.reset();
+            // Remettre la date du jour, l'objectif et le nouveau solde
+            dateInput.valueAsDate = new Date();
+            goalInput.value = localStorage.getItem('workHoursGoal') || '07:22';
+            balanceSign.value = newBalanceString[0];
+            balanceHHMM.value = `${parseInt(newBalanceString.slice(1,3), 10)}:${newBalanceString.slice(4,6)}`;
+
+        } catch (error) {
+            resultDiv.innerHTML = `<p style=\"color: red;\">Erreur: ${error.message}</p>`;
+        }
+    });
+
+    clearHistoryBtn.addEventListener('click', () => {
+        localStorage.removeItem('workHoursHistory');
+        historyList.innerHTML = '';
+        updateHistoryVisibility();
+    });
+
+    function timeStringToMinutes(timeStr) {
+        const [hours, minutes] = timeStr.split(':').map(Number);
+        return hours * 60 + minutes;
+    }
+
+    function parseHHMM(hhmm) {
+        const match = hhmm.match(/^(\d{1,2}):(\d{2})$/);
+        if (!match) throw new Error("Format d'heure invalide pour l'objectif ou le solde (HH:mm)");
+        return parseInt(match[1], 10) * 60 + parseInt(match[2], 10);
+    }
+
+    function calculateWorkedMinutes(times) {
+        const start1 = timeStringToMinutes(times.startMorning);
+        const end1 = timeStringToMinutes(times.endMorning);
+        const start2 = timeStringToMinutes(times.startAfternoon);
+        const end2 = timeStringToMinutes(times.endAfternoon);
+
+        const morningMinutes = end1 - start1;
+        const afternoonMinutes = end2 - start2;
+
+        if (morningMinutes < 0 || afternoonMinutes < 0) {
+            throw new Error("L'heure de fin doit être après l'heure de début pour chaque période.");
+        }
+
+        return morningMinutes + afternoonMinutes;
+    }
+
+    function parseBalance(balanceString) {
+        if (!balanceString) return 0;
+        
+        const balanceRegex = /([+-])(\d{1,2}):(\d{2})/;
+        const match = balanceString.match(balanceRegex);
+
+        if (!match) {
+            throw new Error("Format de solde invalide. Utilisez le sélecteur et le champ HH:mm.");
+        }
+
+        const sign = match[1] === '-' ? -1 : 1;
+        const hours = parseInt(match[2], 10);
+        const minutes = parseInt(match[3], 10);
+
+        return sign * (hours * 60 + minutes);
+    }
+
+    function formatMinutesToSignedHours(totalMinutes) {
+        const sign = totalMinutes < 0 ? '-' : '+';
+        const absMinutes = Math.abs(totalMinutes);
+        const hours = Math.floor(absMinutes / 60);
+        const minutes = absMinutes % 60;
+        return `${sign}${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+    }
+
+    function formatMinutesForDisplay(totalMinutes) {
+        if (totalMinutes === 0) return "0 min";
+        const sign = totalMinutes < 0 ? '-' : '+';
+        const absMinutes = Math.abs(totalMinutes);
+        const hours = Math.floor(absMinutes / 60);
+        const minutes = absMinutes % 60;
+
+        let result = [];
+        if (hours > 0) result.push(`${hours} h`);
+        if (minutes > 0) result.push(`${minutes} min`);
+        
+        return (sign === '+' ? '+' : '- ') + result.join(' ');
+    }
+    
+    function formatMinutesToHoursAndMinutes(totalMinutes) {
+        const absMinutes = Math.abs(totalMinutes);
+        const hours = Math.floor(absMinutes / 60);
+        const minutes = absMinutes % 60;
+        return `${hours} h ${String(minutes).padStart(2, '0')} min`;
+    }
+
+    function generateSummaryLine(dateValue, times, workedMinutes, dailyDiffMinutes, newBalanceMinutes, goalString) {
+        const workedStr = formatMinutesToHoursAndMinutes(workedMinutes);
+        const diffStr = formatMinutesForDisplay(dailyDiffMinutes);
+        const newBalanceStr = formatMinutesToSignedHours(newBalanceMinutes).replace(':', ' h ') + ' min';
+        const dateStr = dateValue ? dateValue.split('-').reverse().join('/') + ' ' : '';
+        return `${dateStr}${times.startMorning}-${times.endMorning}-${times.startAfternoon}-${times.endAfternoon} (${workedStr} : ${diffStr} : ${newBalanceStr} | objectif ${goalString})`;
+    }
+
+    function displayResult(workedMinutes, dailyDiffMinutes, newBalanceString, summaryLine, goalString) {
+        const workedHours = formatMinutesToHoursAndMinutes(workedMinutes);
+        const dailyDiffString = formatMinutesForDisplay(dailyDiffMinutes);
+
+        resultDiv.innerHTML = `
+            <p><strong>Temps travaillé aujourd'hui :</strong> ${workedHours}</p>
+            <p><strong>Différence du jour (objectif ${goalString}) :</strong> ${dailyDiffString}</p>
+            <p><strong>Nouveau solde :</strong> ${newBalanceString.replace(':', 'h')}</p>
+            <hr>
+            <p><strong>Ligne de résumé :</strong></p>
+            <code style=\"display: block; background-color: #eee; padding: 8px; border-radius: 4px;\">${summaryLine}</code>
+        `;
+    }
+
+    function updateHistoryVisibility() {
+        const hasHistory = historyList.children.length > 0;
+        historyTitle.style.display = hasHistory ? '' : 'none';
+        clearHistoryBtn.style.display = hasHistory ? '' : 'none';
+    }
+
+    function addHistoryEntry(summaryLine, idx) {
+        const li = document.createElement('li');
+        li.textContent = summaryLine;
+        li.style.display = 'flex';
+        li.style.justifyContent = 'space-between';
+        li.style.alignItems = 'center';
+        const delBtn = document.createElement('button');
+        delBtn.textContent = '✕';
+        delBtn.title = 'Supprimer cette entrée';
+        delBtn.setAttribute('aria-label', 'Supprimer cette entrée');
+        delBtn.style.marginLeft = '1em';
+        delBtn.style.background = 'none';
+        delBtn.style.border = 'none';
+        delBtn.style.color = '#b00';
+        delBtn.style.fontSize = '1.2em';
+        delBtn.style.cursor = 'pointer';
+        delBtn.addEventListener('click', () => {
+            // Supprimer l'entrée de l'historique
+            const currentHistory = JSON.parse(localStorage.getItem('workHoursHistory')) || [];
+            currentHistory.splice(idx, 1);
+            localStorage.setItem('workHoursHistory', JSON.stringify(currentHistory));
+            li.remove();
+            updateHistoryVisibility();
+        });
+        li.appendChild(delBtn);
+        historyList.appendChild(li);
+        updateHistoryVisibility();
+    }
+});

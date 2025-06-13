@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Mini application éco-responsable pour calculer et suivre vos heures de travail quotidiennes, avec export et historique.">
+    <meta name="theme-color" content="#005a9e">
+    <link rel="icon" href="favicon.ico">
+    <link rel="manifest" href="manifest.json">
+    <link rel="canonical" href="https://votre-url-netlify.netlify.app/">
+    <title>Calculateur d'heures de travail</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Calculateur d'heures de travail</h1>
+        <form id="time-form" autocomplete="on">
+            <div class="form-group">
+                <label for="date-input">Date :</label>
+                <input type="date" id="date-input" required autocomplete="date">
+            </div>
+            <div class="form-group">
+                <label for="goal-input">Objectif journalier (HH:mm) :</label>
+                <input type="time" id="goal-input" value="07:22" required autocomplete="off">
+            </div>
+            <div class="form-group-grid">
+                <div class="form-group">
+                    <label for="start-morning">Arrivée matin :</label>
+                    <input type="time" id="start-morning" required autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="end-morning">Départ déjeuner :</label>
+                    <input type="time" id="end-morning" required autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="start-afternoon">Retour déjeuner :</label>
+                    <input type="time" id="start-afternoon" required autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="end-afternoon">Départ soir :</label>
+                    <input type="time" id="end-afternoon" required autocomplete="off">
+                </div>
+            </div>
+            <div class="form-group-grid">
+                <div class="form-group">
+                    <label for="balance-sign">Signe du solde :</label>
+                    <select id="balance-sign" autocomplete="off">
+                        <option value="+">+</option>
+                        <option value="-">-</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="balance-hhmm">Solde :</label>
+                    <input type="text" id="balance-hhmm" pattern="^\d{1,2}:[0-5]\d$" placeholder="Ex: 28:38" required autocomplete="off">
+                </div>
+            </div>
+            <button type="submit">Calculer</button>
+        </form>
+        <div id="result" class="result-container" aria-live="polite" style="display:none;"></div>
+        <div id="history-container">
+            <h2>Historique</h2>
+            <button id="clear-history" type="button" aria-label="Vider l'historique">Vider l'historique</button>
+            <ul id="history-list"></ul>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

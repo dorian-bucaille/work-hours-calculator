@@ -1,0 +1,16 @@
+{
+  "name": "Calculateur d'heures de travail",
+  "short_name": "Heures Travail",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f0f2f5",
+  "theme_color": "#005a9e",
+  "description": "Mini application éco-responsable pour calculer et suivre vos heures de travail quotidiennes.",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "48x48 32x32 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}
