@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultDiv = document.getElementById('result');
     const historyList = document.getElementById('history-list');
     const clearHistoryBtn = document.getElementById('clear-history');
+    const exportHistoryBtn = document.getElementById('export-history');
     const historyContainer = document.getElementById('history-container');
     const historyTitle = historyContainer.querySelector('h2');
 
@@ -83,6 +84,24 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem('workHoursHistory');
         historyList.innerHTML = '';
         updateHistoryVisibility();
+    });
+
+    exportHistoryBtn.addEventListener('click', () => {
+        const currentHistory = JSON.parse(localStorage.getItem('workHoursHistory')) || [];
+        const blob = new Blob([JSON.stringify(currentHistory, null, 2)], { type: 'application/json' });
+        const now = new Date();
+        const dateStr = now.toISOString().slice(0,10); // YYYY-MM-DD
+        const filename = `${dateStr}-historique-heures-travail.json`;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }, 100);
     });
 
     function timeStringToMinutes(timeStr) {
@@ -184,6 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const hasHistory = historyList.children.length > 0;
         historyTitle.style.display = hasHistory ? '' : 'none';
         clearHistoryBtn.style.display = hasHistory ? '' : 'none';
+        exportHistoryBtn.style.display = hasHistory ? '' : 'none';
     }
 
     function addHistoryEntry(summaryLine, idx) {
