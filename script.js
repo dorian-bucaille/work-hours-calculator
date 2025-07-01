@@ -15,21 +15,49 @@ document.addEventListener('DOMContentLoaded', () => {
     const historyContainer = document.getElementById('history-container');
     const historyTitle = historyContainer.querySelector('h2');
 
-    // Pré-remplir la date du jour
-    dateInput.valueAsDate = new Date();
-    goalInput.value = localStorage.getItem('workHoursGoal') || '07:22';
-
-    // Chargement du dernier solde depuis localStorage
-    const lastBalance = localStorage.getItem('workHoursBalance');
-    if (lastBalance) {
-        const match = lastBalance.match(/([+-])(\d{2}):(\d{2})/);
-        if (match) {
-            balanceSign.value = match[1];
-            balanceHHMM.value = `${parseInt(match[2], 10)}:${match[3]}`;
+    // Fonctions utilitaires pour le localStorage
+    function getLocalStorageItem(key, fallback = null) {
+        try {
+            const value = localStorage.getItem(key);
+            return value !== null ? JSON.parse(value) : fallback;
+        } catch {
+            return fallback;
         }
     }
+    function setLocalStorageItem(key, value) {
+        try {
+            localStorage.setItem(key, JSON.stringify(value));
+        } catch {}
+    }
+
+    // Sécurise l'injection de texte dans le DOM
+    function escapeHTML(str) {
+        return String(str).replace(/[&<>"']/g, function (c) {
+            return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]);
+        });
+    }
+
+    // Pré-remplir la date du jour
+    dateInput.valueAsDate = new Date();
+    goalInput.value = getLocalStorageItem('workHoursGoal', '07:22');
+
+    // Initialisation du solde à la première visite
+    let lastBalance = getLocalStorageItem('workHoursBalance', null);
+    if (!lastBalance) {
+        lastBalance = '+00:00';
+        setLocalStorageItem('workHoursBalance', lastBalance);
+    }
+    const match = lastBalance.match(/([+-])(\d{2}):(\d{2})/);
+    if (match) {
+        balanceSign.value = match[1];
+        // Pour <input type="time">, il faut le format HH:mm sans le signe
+        balanceHHMM.value = `${match[2]}:${match[3]}`;
+    } else {
+        balanceSign.value = '+';
+        balanceHHMM.value = '00:00';
+    }
     
-    const history = JSON.parse(localStorage.getItem('workHoursHistory')) || [];
+    const history = getLocalStorageItem('workHoursHistory', []);
     history.forEach((item, idx) => addHistoryEntry(item, idx));
     updateHistoryVisibility();
 
@@ -45,9 +73,10 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         const dateValue = dateInput.value;
         const goalString = goalInput.value;
-        localStorage.setItem('workHoursGoal', goalString);
+        setLocalStorageItem('workHoursGoal', goalString);
         const dailyGoalMinutes = parseHHMM(goalString);
         const currentBalanceString = `${balanceSign.value}${balanceHHMM.value.padStart(5, '0')}`;
+        // Pour <input type="time">, balanceHHMM.value est déjà au format HH:mm
 
         try {
             const workedMinutes = calculateWorkedMinutes(timeValues);
@@ -60,10 +89,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const summaryLine = generateSummaryLine(dateValue, timeValues, workedMinutes, dailyDiffMinutes, newBalanceMinutes, goalString);
 
             // Save new balance and history to localStorage
-            localStorage.setItem('workHoursBalance', newBalanceString);
+            setLocalStorageItem('workHoursBalance', newBalanceString);
             history.push(summaryLine);
-            localStorage.setItem('workHoursHistory', JSON.stringify(history));
-
+            setLocalStorageItem('workHoursHistory', history);
             displayResult(workedMinutes, dailyDiffMinutes, newBalanceString, summaryLine, goalString);
             addHistoryEntry(summaryLine);
             
@@ -71,12 +99,13 @@ document.addEventListener('DOMContentLoaded', () => {
             timeForm.reset();
             // Remettre la date du jour, l'objectif et le nouveau solde
             dateInput.valueAsDate = new Date();
-            goalInput.value = localStorage.getItem('workHoursGoal') || '07:22';
+            goalInput.value = getLocalStorageItem('workHoursGoal', '07:22');
             balanceSign.value = newBalanceString[0];
-            balanceHHMM.value = `${parseInt(newBalanceString.slice(1,3), 10)}:${newBalanceString.slice(4,6)}`;
+            // Pour <input type="time">, on enlève le signe
+            balanceHHMM.value = `${newBalanceString.slice(1,3)}:${newBalanceString.slice(4,6)}`;
 
         } catch (error) {
-            resultDiv.innerHTML = `<p style=\"color: red;\">Erreur: ${error.message}</p>`;
+            resultDiv.innerHTML = `<p role="alert">Erreur: ${escapeHTML(error.message)}</p>`;
         }
     });
 
@@ -87,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     exportHistoryBtn.addEventListener('click', () => {
-        const currentHistory = JSON.parse(localStorage.getItem('workHoursHistory')) || [];
+        const currentHistory = getLocalStorageItem('workHoursHistory', []);
         const blob = new Blob([JSON.stringify(currentHistory, null, 2)], { type: 'application/json' });
         const now = new Date();
         const dateStr = now.toISOString().slice(0,10); // YYYY-MM-DD
@@ -224,9 +253,9 @@ document.addEventListener('DOMContentLoaded', () => {
         delBtn.style.cursor = 'pointer';
         delBtn.addEventListener('click', () => {
             // Supprimer l'entrée de l'historique
-            const currentHistory = JSON.parse(localStorage.getItem('workHoursHistory')) || [];
+            const currentHistory = getLocalStorageItem('workHoursHistory', []);
             currentHistory.splice(idx, 1);
-            localStorage.setItem('workHoursHistory', JSON.stringify(currentHistory));
+            setLocalStorageItem('workHoursHistory', currentHistory);
             li.remove();
             updateHistoryVisibility();
         });

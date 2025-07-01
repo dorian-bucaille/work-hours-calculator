@@ -74,6 +74,12 @@ button:hover {
     background-color: #004175;
 }
 
+button:focus-visible, input:focus-visible, select:focus-visible {
+    outline: 2px solid #005a9e;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px #b3d4fc;
+}
+
 .result-container {
     margin-top: 1.5rem;
     padding: 1rem;
@@ -81,4 +87,75 @@ button:hover {
     border: 1px solid #eee;
     border-radius: 4px;
     text-align: left;
+}
+
+.result-container p[role="alert"] {
+    color: #b00;
+    font-weight: bold;
+}
+
+/* Amélioration de l'affichage de l'historique */
+#history-container {
+    margin-top: 2rem;
+    background: #f7fafc;
+    border: 1px solid #e0e6ed;
+    border-radius: 6px;
+    padding: 1.2rem 1rem 1rem 1rem;
+    box-shadow: 0 2px 8px rgba(0,90,158,0.04);
+    text-align: center;
+}
+#history-container h2 {
+    color: #005a9e;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    letter-spacing: 0.5px;
+}
+#history-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 220px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+#history-list li {
+    background: #fff;
+    border: 1px solid #e0e6ed;
+    border-radius: 4px;
+    margin-bottom: 0.7rem;
+    padding: 0.7rem 1rem;
+    font-size: 0.98rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: box-shadow 0.2s;
+    box-shadow: 0 1px 2px rgba(0,90,158,0.03);
+    word-break: break-word;
+    width: 95%;
+    max-width: 420px;
+}
+#history-list li:last-child {
+    margin-bottom: 0;
+}
+#history-list button {
+    background: none;
+    border: none;
+    color: #b00;
+    font-size: 1.2em;
+    cursor: pointer;
+    margin-left: 1em;
+    padding: 0.2em 0.5em;
+    border-radius: 3px;
+    transition: background 0.2s;
+}
+#history-list button:hover, #history-list button:focus-visible {
+    background: #ffeaea;
+}
+#clear-history, #export-history {
+    margin-bottom: 1rem;
+    margin-right: 0.5rem;
+    font-size: 0.95rem;
+    padding: 0.5rem 1.1rem;
 }
