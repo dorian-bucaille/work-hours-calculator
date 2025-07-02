@@ -230,6 +230,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateHistoryVisibility() {
         const hasHistory = historyList.children.length > 0;
+        if (hasHistory) {
+            historyContainer.classList.add('has-history');
+        } else {
+            historyContainer.classList.remove('has-history');
+        }
         historyTitle.style.display = hasHistory ? '' : 'none';
         clearHistoryBtn.style.display = hasHistory ? '' : 'none';
         exportHistoryBtn.style.display = hasHistory ? '' : 'none';

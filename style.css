@@ -103,6 +103,10 @@ button:focus-visible, input:focus-visible, select:focus-visible {
     padding: 1.2rem 1rem 1rem 1rem;
     box-shadow: 0 2px 8px rgba(0,90,158,0.04);
     text-align: center;
+    display: none;
+}
+#history-container.has-history {
+    display: block;
 }
 #history-container h2 {
     color: #005a9e;
