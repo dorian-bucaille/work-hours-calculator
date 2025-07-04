@@ -4,7 +4,7 @@ Mini application web éco-responsable pour calculer et suivre vos heures de trav
 
 ## 🚀 Démo en ligne
 L'application est déployée et accessible ici :
-👉 https://work-hours-calc.netlify.app
+👉 https://workhourscalculator.netlify.app/
 
 ## Fonctionnalités principales
 - Calcul du temps de travail journalier
