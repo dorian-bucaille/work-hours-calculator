@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const exportHistoryBtn = document.getElementById('export-history');
     const historyContainer = document.getElementById('history-container');
     const historyTitle = historyContainer.querySelector('h2');
+    const suggestedEndAfternoonDiv = document.getElementById('suggested-end-afternoon');
 
     // Fonctions utilitaires pour le localStorage
     function getLocalStorageItem(key, fallback = null) {
@@ -40,6 +41,38 @@ document.addEventListener('DOMContentLoaded', () => {
     // Pré-remplir la date du jour
     dateInput.valueAsDate = new Date();
     goalInput.value = getLocalStorageItem('workHoursGoal', '07:22');
+    // Ne pas remplir automatiquement endAfternoon, mais afficher une suggestion
+    function updateSuggestedEndAfternoon() {
+        // On ne suggère que si tous les champs nécessaires sont remplis
+        const startMorning = startMorningInput.value;
+        const endMorning = endMorningInput.value;
+        const startAfternoon = startAfternoonInput.value;
+        const goal = goalInput.value;
+        if (startMorning && endMorning && startAfternoon && goal) {
+            try {
+                const workedSoFar = timeStringToMinutes(endMorning) - timeStringToMinutes(startMorning);
+                const goalMinutes = parseHHMM(goal);
+                const lunchBreak = timeStringToMinutes(startAfternoon) - timeStringToMinutes(endMorning);
+                if (workedSoFar >= 0 && lunchBreak >= 0) {
+                    const remaining = goalMinutes - workedSoFar;
+                    if (remaining > 0) {
+                        const suggested = timeStringToMinutes(startAfternoon) + remaining;
+                        const hours = String(Math.floor(suggested / 60)).padStart(2, '0');
+                        const minutes = String(suggested % 60).padStart(2, '0');
+                        suggestedEndAfternoonDiv.innerHTML = `<em>Suggestion : ${hours}:${minutes}</em>`;
+                        return;
+                    }
+                }
+            } catch {}
+        }
+        suggestedEndAfternoonDiv.innerHTML = '';
+    }
+    startMorningInput.addEventListener('input', updateSuggestedEndAfternoon);
+    endMorningInput.addEventListener('input', updateSuggestedEndAfternoon);
+    startAfternoonInput.addEventListener('input', updateSuggestedEndAfternoon);
+    goalInput.addEventListener('input', updateSuggestedEndAfternoon);
+    // Initialiser la suggestion au chargement
+    updateSuggestedEndAfternoon();
 
     // Initialisation du solde à la première visite
     let lastBalance = getLocalStorageItem('workHoursBalance', null);
