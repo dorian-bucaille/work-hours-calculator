@@ -149,9 +149,41 @@ document.addEventListener('DOMContentLoaded', () => {
         balanceHHMM.value = '00:00';
     }
     
-    const history = getLocalStorageItem('workHoursHistory', []);
-    history.forEach((item, idx) => addHistoryEntry(item, idx));
-    updateHistoryVisibility();
+    // Récupérer l'ordre d'affichage depuis localStorage, par défaut 'desc'
+    let historyOrder = getLocalStorageItem('historyOrder', 'desc');
+    // Mettre à jour le sélecteur avec l'ordre actuel
+    const historyOrderSelect = document.getElementById('history-order');
+    if (historyOrderSelect) {
+        historyOrderSelect.value = historyOrder;
+        // Ajouter un écouteur d'événement pour changer l'ordre
+        historyOrderSelect.addEventListener('change', function() {
+            historyOrder = this.value;
+            setLocalStorageItem('historyOrder', historyOrder);
+            // Recharger l'historique avec le nouvel ordre
+            loadHistory();
+        });
+    }
+
+    // Fonction pour charger et afficher l'historique
+    function loadHistory() {
+        const history = getLocalStorageItem('workHoursHistory', []);
+        // Trier l'historique selon l'ordre sélectionné
+        const sortedHistory = historyOrder === 'desc' 
+            ? [...history].reverse() 
+            : [...history];
+        // Vider la liste actuelle
+        historyList.innerHTML = '';
+        // Ajouter chaque entrée dans l'ordre correct
+        sortedHistory.forEach((item, idx) => {
+            // Calculer l'index réel dans l'historique complet
+            const realIdx = historyOrder === 'desc' ? (history.length - 1 - idx) : idx;
+            addHistoryEntry(item, realIdx);
+        });
+        updateHistoryVisibility();
+    }
+
+    // Charger l'historique au démarrage
+    loadHistory();
 
     timeForm.addEventListener('submit', (e) => {
         e.preventDefault();

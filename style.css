@@ -269,8 +269,33 @@ select:focus-visible {
 #history-container h2 {
     color: #005a9e;
     font-size: 1.2rem;
-    margin-bottom: 1rem;
+    margin: 0 0 1rem 0;
     letter-spacing: 0.5px;
+}
+
+#history-container > div:last-child {
+    display: flex;
+    justify-content: center;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+#history-order {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.9rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #333;
+    cursor: pointer;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+#history-order:hover,
+#history-order:focus-visible {
+    border-color: #005a9e;
+    outline: none;
+    box-shadow: 0 0 0 2px #b3d4fc;
 }
 
 #history-list {
