@@ -202,6 +202,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentBalanceString = `${balanceSign.value}${balanceHHMM.value.padStart(5, '0')}`;
         // Pour <input type="time">, balanceHHMM.value est déjà au format HH:mm
 
+        let history = getLocalStorageItem('workHoursHistory', []);
+        if (!Array.isArray(history)) history = [];
+
         try {
             const workedMinutes = calculateWorkedMinutes(timeValues);
             const dailyDiffMinutes = workedMinutes - dailyGoalMinutes;
