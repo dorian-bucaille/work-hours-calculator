@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Gérer l'ouverture/fermeture du panneau des paramètres
     settingsButton.addEventListener('click', () => {
-        settingsPanel.classList.add('open');
+        settingsPanel.classList.toggle('open');
     });
 
     closeSettingsButton.addEventListener('click', () => {
