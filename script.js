@@ -6,6 +6,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const endMorningInput = document.getElementById('end-morning');
     const startAfternoonInput = document.getElementById('start-afternoon');
     const endAfternoonInput = document.getElementById('end-afternoon');
+    const settingsButton = document.getElementById('settings-button');
+    const settingsPanel = document.getElementById('settings-panel');
+    const closeSettingsButton = document.getElementById('close-settings');
+    const autoAdvanceCheckbox = document.getElementById('auto-advance');
     const balanceSign = document.getElementById('balance-sign');
     const balanceHHMM = document.getElementById('balance-hhmm');
     const resultDiv = document.getElementById('result');
@@ -15,6 +19,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const historyContainer = document.getElementById('history-container');
     const historyTitle = historyContainer.querySelector('h2');
     const suggestedEndAfternoonDiv = document.getElementById('suggested-end-afternoon');
+    const formInputs = [
+        startMorningInput,
+        endMorningInput,
+        startAfternoonInput,
+        endAfternoonInput
+    ];
 
     // Fonctions utilitaires pour le localStorage
     function getLocalStorageItem(key, fallback = null) {
@@ -76,6 +86,55 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialisation du solde à la première visite
     let lastBalance = getLocalStorageItem('workHoursBalance', null);
+
+    // Gestion des paramètres
+    // Charger l'état du paramètre auto-advance depuis localStorage
+    const autoAdvanceEnabled = getLocalStorageItem('autoAdvanceEnabled', true);
+    autoAdvanceCheckbox.checked = autoAdvanceEnabled;
+
+    // Fonction pour passer au champ suivant
+    function focusNextInput(currentInput) {
+        if (!autoAdvanceCheckbox.checked) return;
+        
+        const currentIndex = formInputs.indexOf(currentInput);
+        if (currentIndex === -1) return;
+        
+        const nextIndex = currentIndex + 1;
+        if (nextIndex < formInputs.length) {
+            formInputs[nextIndex].focus();
+        }
+    }
+
+    // Ajouter des écouteurs d'événements pour chaque champ de temps
+    formInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            // Vérifier si le champ contient 4 ou 5 caractères (format HH:MM)
+            if (this.value.length === 5) {
+                focusNextInput(this);
+            }
+        });
+    });
+
+    // Gérer l'ouverture/fermeture du panneau des paramètres
+    settingsButton.addEventListener('click', () => {
+        settingsPanel.classList.add('open');
+    });
+
+    closeSettingsButton.addEventListener('click', () => {
+        settingsPanel.classList.remove('open');
+    });
+
+    // Fermer le panneau des paramètres en cliquant en dehors
+    settingsPanel.addEventListener('click', (e) => {
+        if (e.target === settingsPanel) {
+            settingsPanel.classList.remove('open');
+        }
+    });
+
+    // Sauvegarder le paramètre auto-advance
+    autoAdvanceCheckbox.addEventListener('change', () => {
+        setLocalStorageItem('autoAdvanceEnabled', autoAdvanceCheckbox.checked);
+    });
     if (!lastBalance) {
         lastBalance = '+00:00';
         setLocalStorageItem('workHoursBalance', lastBalance);

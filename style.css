@@ -17,11 +17,177 @@ body {
     width: 100%;
     max-width: 500px;
     text-align: center;
+    position: relative;
 }
 
-h1 {
-    color: #005a9e;
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 1.5rem;
+}
+
+.header h1 {
+    margin: 0;
+    color: #005a9e;
+}
+
+#settings-button {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+#settings-button:hover,
+#settings-button:focus-visible {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+#settings-button svg {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.3s;
+}
+
+#settings-button:hover svg,
+#settings-button:focus-visible svg {
+    transform: rotate(90deg);
+}
+
+#settings-panel {
+    position: fixed;
+    top: 0;
+    right: -320px;
+    width: 300px;
+    height: 100%;
+    background-color: #fff;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    z-index: 1000;
+    transition: right 0.3s ease;
+}
+
+#settings-panel.open {
+    right: 0;
+}
+
+#settings-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+#settings-panel-header h2 {
+    margin: 0;
+    color: #005a9e;
+    font-size: 1.2rem;
+}
+
+#close-settings {
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+#close-settings:hover,
+#close-settings:focus-visible {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.settings-group {
+    margin-bottom: 1.5rem;
+}
+
+.settings-group h3 {
+    margin: 0 0 0.75rem 0;
+    color: #333;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 52px;
+    height: 26px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #005a9e;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+.slider:after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    bottom: 4px;
+    border-radius: 34px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked + .slider:after {
+    background-color: #005a9e;
 }
 
 .form-group-grid {
@@ -74,7 +240,9 @@ button:hover {
     background-color: #004175;
 }
 
-button:focus-visible, input:focus-visible, select:focus-visible {
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
     outline: 2px solid #005a9e;
     outline-offset: 2px;
     box-shadow: 0 0 0 2px #b3d4fc;
@@ -105,15 +273,18 @@ button:focus-visible, input:focus-visible, select:focus-visible {
     text-align: center;
     display: none;
 }
+
 #history-container.has-history {
     display: block;
 }
+
 #history-container h2 {
     color: #005a9e;
     font-size: 1.2rem;
     margin-bottom: 1rem;
     letter-spacing: 0.5px;
 }
+
 #history-list {
     list-style: none;
     padding: 0;
@@ -124,6 +295,7 @@ button:focus-visible, input:focus-visible, select:focus-visible {
     flex-direction: column;
     align-items: center;
 }
+
 #history-list li {
     background: #fff;
     border: 1px solid #e0e6ed;
@@ -140,9 +312,11 @@ button:focus-visible, input:focus-visible, select:focus-visible {
     width: 95%;
     max-width: 420px;
 }
+
 #history-list li:last-child {
     margin-bottom: 0;
 }
+
 #history-list button {
     background: none;
     border: none;
@@ -154,10 +328,14 @@ button:focus-visible, input:focus-visible, select:focus-visible {
     border-radius: 3px;
     transition: background 0.2s;
 }
-#history-list button:hover, #history-list button:focus-visible {
+
+#history-list button:hover,
+#history-list button:focus-visible {
     background: #ffeaea;
 }
-#clear-history, #export-history {
+
+#clear-history,
+#export-history {
     margin-bottom: 1rem;
     margin-right: 0.5rem;
     font-size: 0.95rem;
