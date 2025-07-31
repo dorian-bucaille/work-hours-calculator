@@ -174,20 +174,8 @@ input:checked + .slider:before {
     transform: translateX(26px);
 }
 
-.slider:after {
-    content: '';
-    position: absolute;
-    top: 4px;
-    left: 4px;
-    right: 4px;
-    bottom: 4px;
-    border-radius: 34px;
-    background-color: white;
-    transition: .4s;
-}
-
 input:checked + .slider:after {
-    background-color: #005a9e;
+    border-color: #005a9e;
 }
 
 .form-group-grid {
