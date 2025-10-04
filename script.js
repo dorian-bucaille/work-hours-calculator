@@ -344,6 +344,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function displayResult(workedMinutes, dailyDiffMinutes, newBalanceString, summaryLine, goalString) {
         const workedHours = formatMinutesToHoursAndMinutes(workedMinutes);
         const dailyDiffString = formatMinutesForDisplay(dailyDiffMinutes);
+        const timeSchedule = summaryLine.split(' ')[1]; // Extrait "08:30-12:20-14:00-17:30"
 
         resultDiv.innerHTML = `
             <p><strong>Temps travaillé aujourd'hui :</strong> ${workedHours}</p>
@@ -351,8 +352,29 @@ document.addEventListener('DOMContentLoaded', () => {
             <p><strong>Nouveau solde :</strong> ${newBalanceString.replace(':', 'h')}</p>
             <hr>
             <p><strong>Ligne de résumé :</strong></p>
-            <code style=\"display: block; background-color: #eee; padding: 8px; border-radius: 4px;\">${summaryLine}</code>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <code style="display: block; background-color: #eee; padding: 8px; border-radius: 4px; flex-grow: 1;">${summaryLine}</code>
+                <button id="copyScheduleButton" class="copy-button" title="Copier les horaires">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                </button>
+            </div>
         `;
+
+        // Ajouter l'événement de copie
+        document.getElementById('copyScheduleButton').addEventListener('click', () => {
+            navigator.clipboard.writeText(timeSchedule).then(() => {
+                const button = document.getElementById('copyScheduleButton');
+                button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"></path></svg>';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        });
     }
 
     function updateHistoryVisibility() {
