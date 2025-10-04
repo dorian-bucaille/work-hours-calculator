@@ -1,32 +1,36 @@
-# Calculateur d'heures de travail
+# Work Hours Calculator
 
-Mini application web éco-responsable pour calculer et suivre vos heures de travail quotidiennes. Sobre, rapide, sans framework, accessible à tous.
+A lightweight web application for tracking daily work hours with automatic balance calculation.
 
-## 🚀 Démo en ligne
-L'application est déployée et accessible ici :
-👉 https://workhourscalculator.netlify.app/
+## Overview
+- Track daily work hours with morning/afternoon periods
+- Maintain a running balance of work hours
+- View and export work history
+- Works offline with local storage
+- No dependencies, just vanilla JavaScript
 
-## Fonctionnalités principales
-- Calcul du temps de travail journalier
-- Gestion d'un solde d'heures
-- Historique et export JSON
-- Interface accessible, légère et responsive
+## Demo
+https://workhourscalculator.netlify.app/
 
-## Contribution
-Je suis ouvert à toute suggestion ou amélioration, tant que l'esprit de sobriété est respecté !
-
-## Roadmap
-- [ ] Mode sombre / clair
-- [ ] Support multi-langue (français/anglais)
-
-## Installation locale
-Aucune dépendance. Clonez le repo et ouvrez `index.html` dans votre navigateur.
+## Installation
+No build step or dependencies required. Simply clone the repository and open `index.html` in your browser.
 
 ```bash
 git clone https://github.com/dorian-bucaille/work-hours-calculator.git
 cd work-hours-calculator
-# Ouvrez index.html
+# Open index.html in your browser
 ```
 
-## Licence
+## Features
+- Daily work hours calculation
+- Running hours balance tracking
+- History view with JSON export
+- Responsive design
+- Keyboard navigation support
+- Offline capable (PWA)
+
+## Contributing
+Contributions are welcome! Feel free to open issues or submit pull requests.
+
+## License
 MIT
