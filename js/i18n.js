@@ -3,7 +3,7 @@ class I18nManager {
         this.translations = {};
         this.currentLang = null;
         this.defaultLang = options.defaultLang || 'en';
-        this.supportedLangs = options.supportedLangs || ['en', 'fr', 'es', 'de'];
+        this.supportedLangs = options.supportedLangs || ['en', 'fr', 'es', 'de', 'it'];
         this.langPath = options.langPath || '/lang/';
         this.init();
     }
@@ -124,7 +124,7 @@ class I18nManager {
 document.addEventListener('DOMContentLoaded', () => {
     window.i18n = new I18nManager({
         defaultLang: 'en',
-        supportedLangs: ['en', 'fr', 'es', 'de'],
+        supportedLangs: ['en', 'fr', 'es', 'de', 'it'],
         langPath: '/lang/'
     });
 });
