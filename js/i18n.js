@@ -3,7 +3,7 @@ class I18nManager {
         this.translations = {};
         this.currentLang = null;
         this.defaultLang = options.defaultLang || 'en';
-        this.supportedLangs = options.supportedLangs || ['en', 'fr'];
+        this.supportedLangs = options.supportedLangs || ['en', 'fr', 'es'];
         this.langPath = options.langPath || '/lang/';
         this.init();
     }
@@ -81,20 +81,36 @@ class I18nManager {
     }
 
     updateTranslations() {
-        const elements = document.querySelectorAll('[data-i18n]');
+        // Update text content and aria labels
+        const elements = document.querySelectorAll('[data-i18n], [data-i18n-aria]');
         elements.forEach(element => {
-            const key = element.getAttribute('data-i18n');
-            const translation = this.translations[this.currentLang]?.[key];
-            
-            if (translation) {
-                if (element.tagName === 'INPUT' && element.type === 'submit') {
-                    element.value = translation;
+            // Handle regular content translations
+            const contentKey = element.getAttribute('data-i18n');
+            if (contentKey) {
+                const contentTranslation = this.translations[this.currentLang]?.[contentKey];
+                if (contentTranslation) {
+                    if (element.tagName === 'INPUT' && element.type === 'submit') {
+                        element.value = contentTranslation;
+                    } else {
+                        element.textContent = contentTranslation;
+                    }
                 } else {
-                    element.textContent = translation;
+                    console.warn(`Translation missing for content key: ${contentKey}`);
                 }
-            } else {
-                console.warn(`Translation missing for key: ${key}`);
-                // Leave the existing text as a fallback
+            }
+            
+            // Handle aria-label translations
+            const ariaKey = element.getAttribute('data-i18n-aria');
+            if (ariaKey) {
+                const ariaTranslation = this.translations[this.currentLang]?.[ariaKey];
+                if (ariaTranslation) {
+                    element.setAttribute('aria-label', ariaTranslation);
+                    if (element.hasAttribute('title')) {
+                        element.setAttribute('title', ariaTranslation);
+                    }
+                } else {
+                    console.warn(`Translation missing for aria key: ${ariaKey}`);
+                }
             }
         });
     }
@@ -108,7 +124,7 @@ class I18nManager {
 document.addEventListener('DOMContentLoaded', () => {
     window.i18n = new I18nManager({
         defaultLang: 'en',
-        supportedLangs: ['en', 'fr'],
+        supportedLangs: ['en', 'fr', 'es'],
         langPath: '/lang/'
     });
 });

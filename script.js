@@ -347,7 +347,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const diffStr = formatMinutesForDisplay(dailyDiffMinutes);
         const newBalanceStr = formatMinutesToSignedHours(newBalanceMinutes).replace(':', ' h ') + ' min';
         const dateStr = dateValue ? dateValue.split('-').reverse().join('/') + ' ' : '';
-        return `${dateStr}${times.startMorning}-${times.endMorning}-${times.startAfternoon}-${times.endAfternoon} (${workedStr} : ${diffStr} : ${newBalanceStr} | objectif ${goalString})`;
+        const goalWord = window.i18n.translate('goalWord');
+        return `${dateStr}${times.startMorning}-${times.endMorning}-${times.startAfternoon}-${times.endAfternoon} (${workedStr} : ${diffStr} : ${newBalanceStr} | ${goalWord} ${goalString})`;
     }
 
     function displayResult(workedMinutes, dailyDiffMinutes, newBalanceString, summaryLine, goalString) {
@@ -355,15 +356,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         const dailyDiffString = formatMinutesForDisplay(dailyDiffMinutes);
         const timeSchedule = summaryLine.split(' ')[1]; // Extrait "08:30-12:20-14:00-17:30"
 
+        const i18n = window.i18n;
         resultDiv.innerHTML = `
-            <p><strong>Temps travaillé aujourd'hui :</strong> ${workedHours}</p>
-            <p><strong>Différence du jour (objectif ${goalString}) :</strong> ${dailyDiffString}</p>
-            <p><strong>Nouveau solde :</strong> ${newBalanceString.replace(':', 'h')}</p>
+            <p><strong>${i18n.translate('workedToday')}</strong> ${workedHours}</p>
+            <p><strong>${i18n.translate('dailyDiff')} ${goalString}) :</strong> ${dailyDiffString}</p>
+            <p><strong>${i18n.translate('newBalance')}</strong> ${newBalanceString.replace(':', 'h')}</p>
             <hr>
-            <p><strong>Ligne de résumé :</strong></p>
+            <p><strong>${i18n.translate('summaryLine')}</strong></p>
             <div style="display: flex; align-items: center; gap: 10px;">
                 <code style="display: block; background-color: #eee; padding: 8px; border-radius: 4px; flex-grow: 1;">${summaryLine}</code>
-                <button id="copyScheduleButton" class="copy-button" title="Copier les horaires">
+                <button id="copyScheduleButton" class="copy-button" data-i18n-aria="aria_copySchedule">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                         <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -406,8 +408,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         li.style.alignItems = 'center';
         const delBtn = document.createElement('button');
         delBtn.textContent = '✕';
-        delBtn.title = 'Supprimer cette entrée';
-        delBtn.setAttribute('aria-label', 'Supprimer cette entrée');
+        const deleteText = window.i18n.translate('aria_deleteEntry');
+        delBtn.title = deleteText;
+        delBtn.setAttribute('aria-label', deleteText);
         delBtn.style.marginLeft = '1em';
         delBtn.style.background = 'none';
         delBtn.style.border = 'none';
