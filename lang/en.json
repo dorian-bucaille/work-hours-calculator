@@ -1,0 +1,22 @@
+{
+  "title": "Working Hours Calculator",
+  "date": "Date:",
+  "goal": "Daily Goal",
+  "behavior": "Behavior",
+  "morningStart": "Morning Start",
+  "morningEnd": "Morning End",
+  "afternoonStart": "Afternoon Start",
+  "afternoonEnd": "Afternoon End",
+  "calculate": "Calculate",
+  "workedToday": "Time worked today",
+  "dailyDiff": "Daily difference (goal",
+  "newBalance": "New balance",
+  "settings": "Settings",
+  "autoAdvance": "Auto-advance between fields",
+  "history": "History",
+  "historyOrder": "Display order",
+  "historyOrderAsc": "Oldest first",
+  "historyOrderDesc": "Most recent first",
+  "clearHistory": "Clear History",
+  "exportHistory": "Export History"
+}

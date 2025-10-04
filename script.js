@@ -1,4 +1,13 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // Wait for i18n to initialize
+    await new Promise(resolve => {
+        if (window.i18n) {
+            resolve();
+        } else {
+            document.addEventListener('i18n-ready', resolve, { once: true });
+        }
+    });
+
     const timeForm = document.getElementById('time-form');
     const dateInput = document.getElementById('date-input');
     const goalInput = document.getElementById('goal-input');

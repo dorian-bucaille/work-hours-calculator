@@ -1,0 +1,22 @@
+{
+  "title": "Calculateur d'heures de travail",
+  "date": "Date :",
+  "goal": "Objectif journalier",
+  "behavior": "Comportement",
+  "morningStart": "Début matin",
+  "morningEnd": "Fin matin",
+  "afternoonStart": "Début après-midi",
+  "afternoonEnd": "Fin après-midi",
+  "calculate": "Calculer",
+  "workedToday": "Temps travaillé aujourd'hui",
+  "dailyDiff": "Différence du jour (objectif",
+  "newBalance": "Nouveau solde",
+  "settings": "Paramètres",
+  "autoAdvance": "Passage automatique entre les champs",
+  "history": "Historique",
+  "historyOrder": "Ordre d'affichage",
+  "historyOrderAsc": "Plus ancien d'abord",
+  "historyOrderDesc": "Plus récent d'abord",
+  "clearHistory": "Effacer l'historique",
+  "exportHistory": "Exporter l'historique"
+}

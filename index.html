@@ -3,18 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Mini application éco-responsable pour calculer et suivre vos heures de travail quotidiennes, avec export et historique.">
+    <meta name="description" content="A minimalist work hours tracker web app to calculate your daily working hours.">
     <meta name="theme-color" content="#005a9e">
     <link rel="icon" href="favicon.ico">
     <link rel="manifest" href="manifest.json">
-    <link rel="canonical" href="https://votre-url-netlify.netlify.app/">
-    <title>Calculateur d'heures de travail</title>
+    <link rel="canonical" href="https://workhourscalculator.netlify.app/">
+    <title>Working Hours Calculator</title>
     <link rel="stylesheet" href="style.css">
+    <script src="js/i18n.js"></script>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Calculateur d'heures de travail</h1>
+            <h1 data-i18n="title">Working Hours Calculator</h1>
+            <select id="lang-switcher" aria-label="Change language">
+                <option value="en">English</option>
+                <option value="fr">Français</option>
+            </select>
             <button type="button" id="settings-button" aria-label="Paramètres">
                 <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path fill-rule="evenodd" clip-rule="evenodd" d="M12 8.25C9.92894 8.25 8.25 9.92893 8.25 12C8.25 14.0711 9.92894 15.75 12 15.75C14.0711 15.75 15.75 14.0711 15.75 12C15.75 9.92893 14.0711 8.25 12 8.25ZM9.75 12C9.75 10.7574 10.7574 9.75 12 9.75C13.2426 9.75 14.25 10.7574 14.25 12C14.25 13.2426 13.2426 14.25 12 14.25C10.7574 14.25 9.75 13.2426 9.75 12Z" fill="#1C274C"/>
@@ -30,28 +35,28 @@
         </div>
         <form id="time-form" autocomplete="on">
             <div class="form-group">
-                <label for="date-input">Date :</label>
+                <label for="date-input" data-i18n="date">Date:</label>
                 <input type="date" id="date-input" required autocomplete="date">
             </div>
             <div class="form-group">
-                <label for="goal-input">Objectif journalier :</label>
+                <label for="goal-input" data-i18n="goal">Daily Goal</label>
                 <input type="time" id="goal-input" value="07:22" required autocomplete="off">
             </div>
             <div class="form-group-grid">
                 <div class="form-group">
-                    <label for="start-morning">Arrivée matin :</label>
+                    <label for="start-morning" data-i18n="morningStart">Morning Start</label>
                     <input type="time" id="start-morning" required autocomplete="off">
                 </div>
                 <div class="form-group">
-                    <label for="end-morning">Départ déjeuner :</label>
+                    <label for="end-morning" data-i18n="morningEnd">Morning End</label>
                     <input type="time" id="end-morning" required autocomplete="off">
                 </div>
                 <div class="form-group">
-                    <label for="start-afternoon">Retour déjeuner :</label>
+                    <label for="start-afternoon" data-i18n="afternoonStart">Afternoon Start</label>
                     <input type="time" id="start-afternoon" required autocomplete="off">
                 </div>
                 <div class="form-group">
-                    <label for="end-afternoon">Départ soir :</label>
+                    <label for="end-afternoon" data-i18n="afternoonEnd">Afternoon End</label>
                     <input type="time" id="end-afternoon" required autocomplete="off">
                     <div id="suggested-end-afternoon" style="font-style: italic; color: #555; font-size: 0.97em; margin-top: 0.2em;"></div>
                 </div>
@@ -69,12 +74,12 @@
                     <input type="time" id="balance-hhmm" value="00:00" required autocomplete="off">
                 </div>
             </div>
-            <button type="submit">Calculer</button>
+            <button type="submit" data-i18n="calculate">Calculate</button>
         </form>
         <div id="result" class="result-container" aria-live="polite" style="display:none;"></div>
         <div id="settings-panel">
             <div id="settings-panel-header">
-                <h2>Paramètres</h2>
+                <h2 data-i18n="settings">Settings</h2>
                 <button id="close-settings" aria-label="Fermer les paramètres">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z" fill="currentColor"/>
@@ -82,9 +87,9 @@
                 </button>
             </div>
             <div class="settings-group">
-                <h3>Comportement</h3>
+                <h3 data-i18n="behavior">Behavior</h3>
                 <div class="setting-item">
-                    <label for="auto-advance">Passer automatiquement au champ suivant</label>
+                    <label for="auto-advance" data-i18n="autoAdvance">Auto-advance between fields</label>
                     <label class="switch">
                         <input type="checkbox" id="auto-advance">
                         <span class="slider"></span>
@@ -93,11 +98,11 @@
             </div>
         </div>
         <div id="history-container">
-            <h2>Historique</h2>
-            <button id="clear-history" type="button" aria-label="Vider l'historique">Vider l'historique</button>
-            <button id="export-history" type="button" aria-label="Exporter l'historique en JSON">Exporter l'historique (JSON)</button>
+            <h2 data-i18n="history">History</h2>
+            <button id="clear-history" type="button" data-i18n="clearHistory">Clear History</button>
+            <button id="export-history" type="button" data-i18n="exportHistory">Export History</button>
             <div style="display: flex; justify-content: center; margin-top: 0.8rem;">
-                <select id="history-order">
+                <select id="history-order" data-i18n="historyOrder">
                     <option value="desc">Du plus récent au plus ancien</option>
                     <option value="asc">Du plus ancien au plus récent</option>
                 </select>

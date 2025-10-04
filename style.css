@@ -25,11 +25,33 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
+    gap: 1rem;
+    flex-wrap: wrap;
 }
 
 .header h1 {
     margin: 0;
     color: #005a9e;
+    flex: 1;
+}
+
+#lang-switcher {
+    padding: 0.4rem;
+    width: 90px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    margin-right: 0.5rem;
+}
+
+#lang-switcher:hover,
+#lang-switcher:focus-visible {
+    border-color: #005a9e;
+    outline: none;
+    box-shadow: 0 0 0 2px #b3d4fc;
 }
 
 #settings-button {
