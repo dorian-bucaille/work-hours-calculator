@@ -1,5 +1,7 @@
 {
   "title": "Calculateur d'heures de travail",
+  "tagline": "Planifiez votre journée de travail en toute clarté.",
+  "skipToForm": "Aller directement au formulaire principal",
   "date": "Date :",
   "goal": "Objectif journalier",
   "behavior": "Comportement",

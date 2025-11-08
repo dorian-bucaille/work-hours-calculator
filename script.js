@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const settingsButton = document.getElementById('settings-button');
     const settingsPanel = document.getElementById('settings-panel');
     const closeSettingsButton = document.getElementById('close-settings');
+    const settingsBackdrop = document.getElementById('settings-backdrop');
     const autoAdvanceCheckbox = document.getElementById('auto-advance');
     const balanceSign = document.getElementById('balance-sign');
     const balanceHHMM = document.getElementById('balance-hhmm');
@@ -125,18 +126,57 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // Gérer l'ouverture/fermeture du panneau des paramètres
-    settingsButton.addEventListener('click', () => {
-        settingsPanel.classList.toggle('open');
-    });
+    let lastFocusedElement = null;
 
-    closeSettingsButton.addEventListener('click', () => {
+    function openSettingsPanel() {
+        if (!settingsPanel || settingsPanel.classList.contains('open')) return;
+        lastFocusedElement = document.activeElement;
+        settingsPanel.classList.add('open');
+        settingsPanel.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('settings-open');
+        if (settingsBackdrop) {
+            settingsBackdrop.hidden = false;
+            settingsBackdrop.classList.add('is-visible');
+        }
+        requestAnimationFrame(() => {
+            closeSettingsButton?.focus();
+        });
+    }
+
+    function closeSettingsPanel({ restoreFocus = true } = {}) {
+        if (!settingsPanel || !settingsPanel.classList.contains('open')) return;
         settingsPanel.classList.remove('open');
+        settingsPanel.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('settings-open');
+        if (settingsBackdrop) {
+            settingsBackdrop.classList.remove('is-visible');
+            settingsBackdrop.hidden = true;
+        }
+        if (restoreFocus && lastFocusedElement instanceof HTMLElement) {
+            lastFocusedElement.focus();
+        }
+    }
+
+    settingsButton?.addEventListener('click', () => {
+        if (settingsPanel.classList.contains('open')) {
+            closeSettingsPanel();
+        } else {
+            openSettingsPanel();
+        }
     });
 
-    // Fermer le panneau des paramètres en cliquant en dehors
-    settingsPanel.addEventListener('click', (e) => {
-        if (e.target === settingsPanel) {
-            settingsPanel.classList.remove('open');
+    closeSettingsButton?.addEventListener('click', () => {
+        closeSettingsPanel();
+    });
+
+    settingsBackdrop?.addEventListener('click', () => {
+        closeSettingsPanel();
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && settingsPanel.classList.contains('open')) {
+            event.preventDefault();
+            closeSettingsPanel();
         }
     });
 
@@ -196,7 +236,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     timeForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        resultDiv.style.display = 'block';
+        resultDiv.classList.add('visible');
 
         const timeValues = {
             startMorning: startMorningInput.value,
@@ -239,9 +279,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             balanceSign.value = newBalanceString[0];
             // Pour <input type="time">, on enlève le signe
             balanceHHMM.value = `${newBalanceString.slice(1,3)}:${newBalanceString.slice(4,6)}`;
+            updateSuggestedEndAfternoon();
 
         } catch (error) {
             resultDiv.innerHTML = `<p role="alert">Erreur: ${escapeHTML(error.message)}</p>`;
+            resultDiv.classList.add('visible');
         }
     });
 
@@ -358,19 +400,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const i18n = window.i18n;
         resultDiv.innerHTML = `
-            <p><strong>${i18n.translate('workedToday')}</strong> ${workedHours}</p>
-            <p><strong>${i18n.translate('dailyDiff')} ${goalString}) :</strong> ${dailyDiffString}</p>
-            <p><strong>${i18n.translate('newBalance')}</strong> ${newBalanceString.replace(':', 'h')}</p>
-            <hr>
-            <p><strong>${i18n.translate('summaryLine')}</strong></p>
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <code style="display: block; background-color: #eee; padding: 8px; border-radius: 4px; flex-grow: 1;">${summaryLine}</code>
-                <button id="copyScheduleButton" class="copy-button" data-i18n-aria="aria_copySchedule">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                    </svg>
-                </button>
+            <p class="result-line"><strong>${i18n.translate('workedToday')}</strong> ${workedHours}</p>
+            <p class="result-line"><strong>${i18n.translate('dailyDiff')} ${goalString}) :</strong> ${dailyDiffString}</p>
+            <p class="result-line"><strong>${i18n.translate('newBalance')}</strong> ${newBalanceString.replace(':', 'h')}</p>
+            <div class="result-summary">
+                <p class="result-line"><strong>${i18n.translate('summaryLine')}</strong></p>
+                <div class="result-summary__content">
+                    <code class="result-summary__code">${summaryLine}</code>
+                    <button id="copyScheduleButton" class="copy-button" data-i18n-aria="aria_copySchedule">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                    </button>
+                </div>
             </div>
         `;
 
@@ -398,25 +441,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         historyTitle.style.display = hasHistory ? '' : 'none';
         clearHistoryBtn.style.display = hasHistory ? '' : 'none';
         exportHistoryBtn.style.display = hasHistory ? '' : 'none';
+        if (historyOrderSelect) {
+            const orderWrapper = historyOrderSelect.closest('.history-order-control');
+            if (orderWrapper) {
+                orderWrapper.style.display = hasHistory ? '' : 'none';
+            }
+        }
     }
 
     function addHistoryEntry(summaryLine, idx) {
         const li = document.createElement('li');
         li.textContent = summaryLine;
-        li.style.display = 'flex';
-        li.style.justifyContent = 'space-between';
-        li.style.alignItems = 'center';
         const delBtn = document.createElement('button');
+        delBtn.classList.add('history-delete-button');
         delBtn.textContent = '✕';
         const deleteText = window.i18n.translate('aria_deleteEntry');
         delBtn.title = deleteText;
         delBtn.setAttribute('aria-label', deleteText);
-        delBtn.style.marginLeft = '1em';
-        delBtn.style.background = 'none';
-        delBtn.style.border = 'none';
-        delBtn.style.color = '#b00';
-        delBtn.style.fontSize = '1.2em';
-        delBtn.style.cursor = 'pointer';
         delBtn.addEventListener('click', () => {
             // Supprimer l'entrée de l'historique
             const currentHistory = getLocalStorageItem('workHoursHistory', []);
