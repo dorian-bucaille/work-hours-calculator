@@ -1,4 +1,4 @@
-# Work Hours Calculator
+# 🕰️ Work Hours Calculator
 
 A lightweight web application for tracking daily work hours with automatic balance calculation.
 
@@ -34,3 +34,4 @@ Contributions are welcome! Feel free to open issues or submit pull requests.
 
 ## License
 MIT
+
