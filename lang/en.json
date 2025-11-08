@@ -1,5 +1,7 @@
 {
   "title": "Working Hours Calculator",
+  "tagline": "Plan your working day with clarity.",
+  "skipToForm": "Skip to main planner",
   "date": "Date:",
   "goal": "Daily Goal",
   "behavior": "Behavior",
