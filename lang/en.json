@@ -40,5 +40,7 @@
   "historyOrderAsc": "Oldest first",
   "historyOrderDesc": "Most recent first",
   "clearHistory": "Clear History",
-  "exportHistory": "Export History"
+  "exportHistory": "Export History",
+  "expandHistory": "Show full history",
+  "collapseHistory": "Show less"
 }

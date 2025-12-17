@@ -30,6 +30,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const exportHistoryBtn = document.getElementById('export-history');
     const historyContainer = document.getElementById('history-container');
     const historyTitle = historyContainer.querySelector('h2');
+    const historyListWrapper = document.querySelector('.history-list-wrapper');
+    const historyToggleButton = document.getElementById('history-toggle');
     const suggestedEndAfternoonDiv = document.getElementById('suggested-end-afternoon');
     const applyClipboardButton = document.getElementById('apply-clipboard-schedule');
     const pasteButtonToggle = document.getElementById('paste-button-toggle');
@@ -45,6 +47,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         TIMES_WITH_DETAILS: 'timesWithDetails',
         DATE_TIMES_WITH_DETAILS: 'dateTimesWithDetails',
     };
+
+    const DEFAULT_VISIBLE_HISTORY = 6;
+    let isHistoryExpanded = false;
 
     // Fonctions utilitaires pour le localStorage
     function getLocalStorageItem(key, fallback = null) {
@@ -122,6 +127,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.addEventListener('i18n-language-changed', () => {
         const currentTheme = document.body.classList.contains('theme-dark') ? 'dark' : 'light';
         updateThemeToggleUI(currentTheme);
+        updateHistoryTruncation();
     });
 
     // Sécurise l'injection de texte dans le DOM
@@ -468,6 +474,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    historyToggleButton?.addEventListener('click', () => {
+        isHistoryExpanded = !isHistoryExpanded;
+        updateHistoryTruncation();
+    });
+
     // Fonction pour charger et afficher l'historique
     function loadHistory() {
         const history = getLocalStorageItem('workHoursHistory', []);
@@ -697,12 +708,34 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    function updateHistoryTruncation() {
+        if (!historyToggleButton || !historyListWrapper) return;
+        const totalEntries = historyList.children.length;
+        const hasOverflow = totalEntries > DEFAULT_VISIBLE_HISTORY;
+        if (!hasOverflow) {
+            isHistoryExpanded = false;
+        }
+        const shouldCollapse = hasOverflow && !isHistoryExpanded;
+        historyList.classList.toggle('is-collapsed', shouldCollapse);
+        historyListWrapper.classList.toggle('is-collapsed', shouldCollapse);
+
+        historyToggleButton.style.display = hasOverflow ? '' : 'none';
+        historyToggleButton.setAttribute('aria-expanded', String(isHistoryExpanded));
+
+        const labelKey = shouldCollapse ? 'expandHistory' : 'collapseHistory';
+        historyToggleButton.setAttribute('data-i18n', labelKey);
+        if (window.i18n) {
+            historyToggleButton.textContent = window.i18n.translate(labelKey);
+        }
+    }
+
     function updateHistoryVisibility() {
         const hasHistory = historyList.children.length > 0;
         if (hasHistory) {
             historyContainer.classList.add('has-history');
         } else {
             historyContainer.classList.remove('has-history');
+            isHistoryExpanded = false;
         }
         historyTitle.style.display = hasHistory ? '' : 'none';
         clearHistoryBtn.style.display = hasHistory ? '' : 'none';
@@ -713,6 +746,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 orderWrapper.style.display = hasHistory ? '' : 'none';
             }
         }
+        updateHistoryTruncation();
     }
 
     function addHistoryEntry(summaryLine, idx) {

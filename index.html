@@ -124,7 +124,11 @@
                         <option value="asc" data-i18n="historyOrderAsc">Oldest first</option>
                     </select>
                 </div>
-                <ul id="history-list"></ul>
+                <div class="history-list-wrapper is-collapsed">
+                    <ul id="history-list" class="is-collapsed"></ul>
+                    <div class="history-fade" aria-hidden="true"></div>
+                </div>
+                <button id="history-toggle" type="button" class="btn btn--ghost history-toggle" aria-expanded="false" data-i18n="expandHistory">Afficher tout l'historique</button>
             </aside>
         </main>
         <div id="settings-panel" role="dialog" aria-modal="true" aria-hidden="true" tabindex="-1">
