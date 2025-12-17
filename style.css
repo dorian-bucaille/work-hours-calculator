@@ -40,6 +40,10 @@ body {
     padding: clamp(1.5rem, 5vw, 3rem);
 }
 
+button {
+    font-family: inherit;
+}
+
 .app-shell {
     max-width: 960px;
     margin: 0 auto;
