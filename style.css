@@ -10,6 +10,8 @@ body.theme-light {
     --accent: #111111;
     --accent-soft: rgba(17, 17, 17, 0.08);
     --shadow: none;
+    --button-bg: #000000;
+    --button-text: #ffffff;
 }
 
 body.theme-dark {
@@ -23,6 +25,8 @@ body.theme-dark {
     --accent: #d0d5df;
     --accent-soft: rgba(208, 213, 223, 0.08);
     --shadow: none;
+    --button-bg: #000000;
+    --button-text: #ffffff;
 }
 
 * {
@@ -174,27 +178,27 @@ button:focus-visible {
 }
 
 .btn {
-    border: 1px solid var(--border);
+    border: 1px solid var(--button-bg);
     border-radius: 10px;
     padding: 0.85rem 1.2rem;
     font-size: 1rem;
     font-weight: 600;
     font-family: inherit;
-    background: var(--surface);
-    color: var(--text);
+    background: var(--button-bg);
+    color: var(--button-text);
     cursor: pointer;
     transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
     text-decoration: none;
 }
 
 .btn--primary {
-    background: var(--accent);
-    color: var(--surface);
-    border-color: var(--accent);
+    background: var(--button-bg);
+    color: var(--button-text);
+    border-color: var(--button-bg);
 }
 
 .btn:hover {
-    border-color: var(--accent);
+    border-color: var(--button-bg);
 }
 
 .btn:active {
@@ -210,18 +214,18 @@ button:focus-visible {
     align-items: center;
     justify-content: center;
     gap: 0.35rem;
-    border: 1px solid var(--border);
+    border: 1px solid var(--button-bg);
     border-radius: 999px;
     padding: 0.55rem 0.75rem;
-    background: var(--surface);
-    color: var(--muted);
+    background: var(--button-bg);
+    color: var(--button-text);
     cursor: pointer;
     transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
 }
 
 .icon-button:hover {
-    color: var(--text);
-    border-color: var(--accent);
+    color: var(--button-text);
+    border-color: var(--button-bg);
 }
 
 .theme-toggle {
@@ -293,9 +297,9 @@ body.theme-dark .theme-toggle__icon--moon {
     gap: 0.35rem;
     padding: 0.6rem 0.75rem;
     border-radius: 10px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--muted);
+    border: 1px solid var(--button-bg);
+    background: var(--button-bg);
+    color: var(--button-text);
     font-family: inherit;
     font-size: 0.95rem;
     cursor: pointer;
@@ -303,12 +307,12 @@ body.theme-dark .theme-toggle__icon--moon {
 }
 
 .copy-button:hover {
-    color: var(--text);
-    border-color: var(--accent);
+    color: var(--button-text);
+    border-color: var(--button-bg);
 }
 
 .copy-button.copied {
-    color: var(--accent);
+    color: var(--button-text);
 }
 
 #suggested-end-afternoon {
@@ -317,9 +321,10 @@ body.theme-dark .theme-toggle__icon--moon {
 }
 
 .history-actions {
-    display: flex;
+    display: grid;
+    width: 100%;
     gap: 0.5rem;
-    flex-wrap: wrap;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 }
 
 .history-list-wrapper {
@@ -366,7 +371,22 @@ body.theme-dark .theme-toggle__icon--moon {
 }
 
 .history-toggle {
-    align-self: flex-start;
+    width: 100%;
+}
+
+.history-delete-button {
+    justify-self: end;
+    padding: 0.35rem 0.55rem;
+    border-radius: 8px;
+    border: 1px solid var(--button-bg);
+    background: var(--button-bg);
+    color: var(--button-text);
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.history-delete-button:hover {
+    opacity: 0.85;
 }
 
 .settings-group {
