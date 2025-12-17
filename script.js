@@ -65,6 +65,33 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    function parseScheduleFromText(text) {
+        const parts = text
+            .trim()
+            .split(/[-\s]+/)
+            .map(part => part.trim())
+            .filter(Boolean);
+
+        if (parts.length !== 4) return null;
+
+        const normalizedParts = [];
+        for (const part of parts) {
+            const match = part.match(/^(\d{1,2}):(\d{2})$/);
+            if (!match) return null;
+
+            const hours = match[1].padStart(2, '0');
+            const minutes = match[2];
+            const hoursNum = Number(hours);
+            const minutesNum = Number(minutes);
+
+            if (hoursNum > 23 || minutesNum > 59) return null;
+
+            normalizedParts.push(`${hours}:${minutes}`);
+        }
+
+        return normalizedParts;
+    }
+
     // Pré-remplir la date du jour
     dateInput.valueAsDate = new Date();
     goalInput.value = getLocalStorageItem('workHoursGoal', '07:22');
@@ -100,6 +127,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     goalInput.addEventListener('input', updateSuggestedEndAfternoon);
     // Initialiser la suggestion au chargement
     updateSuggestedEndAfternoon();
+
+    startMorningInput.addEventListener('paste', (event) => {
+        const pastedText = event.clipboardData?.getData('text') || '';
+        const parsed = parseScheduleFromText(pastedText);
+
+        if (!parsed) return;
+
+        event.preventDefault();
+        [
+            startMorningInput.value,
+            endMorningInput.value,
+            startAfternoonInput.value,
+            endAfternoonInput.value,
+        ] = parsed;
+
+        updateSuggestedEndAfternoon();
+        endAfternoonInput.focus();
+    });
 
     // Initialisation du solde à la première visite
     let lastBalance = getLocalStorageItem('workHoursBalance', null);
