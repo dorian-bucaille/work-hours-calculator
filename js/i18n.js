@@ -70,7 +70,11 @@ class I18nManager {
         this.currentLang = lang;
         localStorage.setItem('preferredLanguage', lang);
         this.updateTranslations();
-        
+
+        document.dispatchEvent(new CustomEvent('i18n-language-changed', {
+            detail: { lang },
+        }));
+
         // Update the language switcher if it exists
         const langSwitcher = document.getElementById('lang-switcher');
         if (langSwitcher) {
