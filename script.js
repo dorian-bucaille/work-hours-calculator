@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const timeForm = document.getElementById('time-form');
     const dateInput = document.getElementById('date-input');
     const goalInput = document.getElementById('goal-input');
+    const summaryFormatSelect = document.getElementById('summary-format');
     const startMorningInput = document.getElementById('start-morning');
     const endMorningInput = document.getElementById('end-morning');
     const startAfternoonInput = document.getElementById('start-afternoon');
@@ -35,6 +36,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         startAfternoonInput,
         endAfternoonInput
     ];
+
+    const SUMMARY_FORMATS = {
+        TIMES_ONLY: 'timesOnly',
+        TIMES_WITH_DETAILS: 'timesWithDetails',
+        DATE_TIMES_WITH_DETAILS: 'dateTimesWithDetails',
+    };
 
     // Fonctions utilitaires pour le localStorage
     function getLocalStorageItem(key, fallback = null) {
@@ -101,6 +108,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Charger l'état du paramètre auto-advance depuis localStorage
     const autoAdvanceEnabled = getLocalStorageItem('autoAdvanceEnabled', true);
     autoAdvanceCheckbox.checked = autoAdvanceEnabled;
+
+    const savedSummaryFormat = getLocalStorageItem('summaryFormat', SUMMARY_FORMATS.DATE_TIMES_WITH_DETAILS);
+    const summaryFormatToUse = Object.values(SUMMARY_FORMATS).includes(savedSummaryFormat)
+        ? savedSummaryFormat
+        : SUMMARY_FORMATS.DATE_TIMES_WITH_DETAILS;
+    if (summaryFormatSelect) {
+        summaryFormatSelect.value = summaryFormatToUse;
+    }
 
     // Fonction pour passer au champ suivant
     function focusNextInput(currentInput) {
@@ -184,6 +199,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     autoAdvanceCheckbox.addEventListener('change', () => {
         setLocalStorageItem('autoAdvanceEnabled', autoAdvanceCheckbox.checked);
     });
+
+    summaryFormatSelect?.addEventListener('change', () => {
+        setLocalStorageItem('summaryFormat', summaryFormatSelect.value);
+    });
     if (!lastBalance) {
         lastBalance = '+00:00';
         setLocalStorageItem('workHoursBalance', lastBalance);
@@ -249,6 +268,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         setLocalStorageItem('workHoursGoal', goalString);
         const dailyGoalMinutes = parseHHMM(goalString);
         const currentBalanceString = `${balanceSign.value}${balanceHHMM.value.padStart(5, '0')}`;
+        const summaryFormat = summaryFormatSelect?.value || SUMMARY_FORMATS.DATE_TIMES_WITH_DETAILS;
         // Pour <input type="time">, balanceHHMM.value est déjà au format HH:mm
 
         let history = getLocalStorageItem('workHoursHistory', []);
@@ -261,8 +281,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             const newBalanceMinutes = currentBalanceMinutes + dailyDiffMinutes;
 
             const newBalanceString = formatMinutesToSignedHours(newBalanceMinutes);
-            
-            const summaryLine = generateSummaryLine(dateValue, timeValues, workedMinutes, dailyDiffMinutes, newBalanceMinutes, goalString);
+
+            const summaryLine = generateSummaryLine(dateValue, timeValues, workedMinutes, dailyDiffMinutes, newBalanceMinutes, goalString, summaryFormat);
 
             // Save new balance and history to localStorage
             setLocalStorageItem('workHoursBalance', newBalanceString);
@@ -384,19 +404,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         return `${hours} h ${String(minutes).padStart(2, '0')} min`;
     }
 
-    function generateSummaryLine(dateValue, times, workedMinutes, dailyDiffMinutes, newBalanceMinutes, goalString) {
+    function generateSummaryLine(dateValue, times, workedMinutes, dailyDiffMinutes, newBalanceMinutes, goalString, summaryFormat = SUMMARY_FORMATS.DATE_TIMES_WITH_DETAILS) {
         const workedStr = formatMinutesToHoursAndMinutes(workedMinutes);
         const diffStr = formatMinutesForDisplay(dailyDiffMinutes);
         const newBalanceStr = formatMinutesToSignedHours(newBalanceMinutes).replace(':', ' h ') + ' min';
         const dateStr = dateValue ? dateValue.split('-').reverse().join('/') + ' ' : '';
         const goalWord = window.i18n.translate('goalWord');
-        return `${dateStr}${times.startMorning}-${times.endMorning}-${times.startAfternoon}-${times.endAfternoon} (${workedStr} : ${diffStr} : ${newBalanceStr} | ${goalWord} ${goalString})`;
+        const schedule = `${times.startMorning}-${times.endMorning}-${times.startAfternoon}-${times.endAfternoon}`;
+        const details = `${schedule} (${workedStr} : ${diffStr} : ${newBalanceStr} | ${goalWord} ${goalString})`;
+
+        switch (summaryFormat) {
+            case SUMMARY_FORMATS.TIMES_ONLY:
+                return schedule;
+            case SUMMARY_FORMATS.TIMES_WITH_DETAILS:
+                return details;
+            case SUMMARY_FORMATS.DATE_TIMES_WITH_DETAILS:
+            default:
+                return `${dateStr}${details}`;
+        }
     }
 
     function displayResult(workedMinutes, dailyDiffMinutes, newBalanceString, summaryLine, goalString) {
         const workedHours = formatMinutesToHoursAndMinutes(workedMinutes);
         const dailyDiffString = formatMinutesForDisplay(dailyDiffMinutes);
-        const timeSchedule = summaryLine.split(' ')[1]; // Extrait "08:30-12:20-14:00-17:30"
 
         const i18n = window.i18n;
         resultDiv.innerHTML = `
@@ -419,7 +449,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Ajouter l'événement de copie
         document.getElementById('copyScheduleButton').addEventListener('click', () => {
-            navigator.clipboard.writeText(timeSchedule).then(() => {
+            navigator.clipboard.writeText(summaryLine).then(() => {
                 const button = document.getElementById('copyScheduleButton');
                 button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"></path></svg>';
                 button.classList.add('copied');
