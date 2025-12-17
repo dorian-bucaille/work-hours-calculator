@@ -449,7 +449,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         lastBalance = '+00:00';
         setLocalStorageItem('workHoursBalance', lastBalance);
     }
-    const match = lastBalance.match(/([+-])(\d{2}):(\d{2})/);
+    const match = lastBalance.match(/([+-])(\d+):(\d{2})/);
     if (match) {
         balanceSign.value = match[1];
         // Pour <input type="time">, il faut le format HH:mm sans le signe
@@ -545,7 +545,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             goalInput.value = getLocalStorageItem('workHoursGoal', '07:22');
             balanceSign.value = newBalanceString[0];
             // Pour <input type="time">, on enlève le signe
-            balanceHHMM.value = `${newBalanceString.slice(1,3)}:${newBalanceString.slice(4,6)}`;
+            balanceHHMM.value = newBalanceString.slice(1);
             updateSuggestedEndAfternoon();
 
         } catch (error) {
@@ -608,7 +608,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     function parseBalance(balanceString) {
         if (!balanceString) return 0;
         
-        const balanceRegex = /([+-])(\d{1,2}):(\d{2})/;
+        const balanceRegex = /([+-])(\d+):(\d{2})/;
         const match = balanceString.match(balanceRegex);
 
         if (!match) {
