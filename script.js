@@ -30,6 +30,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const historyContainer = document.getElementById('history-container');
     const historyTitle = historyContainer.querySelector('h2');
     const suggestedEndAfternoonDiv = document.getElementById('suggested-end-afternoon');
+    const applyClipboardButton = document.getElementById('apply-clipboard-schedule');
+    const pasteButtonToggle = document.getElementById('paste-button-toggle');
     const formInputs = [
         startMorningInput,
         endMorningInput,
@@ -63,6 +65,90 @@ document.addEventListener('DOMContentLoaded', async () => {
         return String(str).replace(/[&<>"']/g, function (c) {
             return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]);
         });
+    }
+
+    function parseScheduleFromText(text) {
+        const parts = text
+            .trim()
+            // Support dash variants that can appear when copying text
+            .split(/[\s\-–—]+/)
+            .map(part => part.trim())
+            .filter(Boolean);
+
+        if (parts.length !== 4) return null;
+
+        const normalizedParts = [];
+        for (const part of parts) {
+            const match = part.match(/^(\d{1,2}):(\d{2})$/);
+            if (!match) return null;
+
+            const hours = match[1].padStart(2, '0');
+            const minutes = match[2];
+            const hoursNum = Number(hours);
+            const minutesNum = Number(minutes);
+
+            if (hoursNum > 23 || minutesNum > 59) return null;
+
+            normalizedParts.push(`${hours}:${minutes}`);
+        }
+
+        return normalizedParts;
+    }
+
+    function autofillSchedule(parsedParts, { focusEndAfternoon = true } = {}) {
+        isScheduleAutofilling = true;
+        [
+            startMorningInput.value,
+            endMorningInput.value,
+            startAfternoonInput.value,
+            endAfternoonInput.value,
+        ] = parsedParts;
+        updateSuggestedEndAfternoon();
+        if (focusEndAfternoon) {
+            endAfternoonInput.focus();
+        }
+        isScheduleAutofilling = false;
+    }
+
+    function tryAutofillScheduleFromText(text, options = {}) {
+        const parsed = parseScheduleFromText(text);
+        if (!parsed) return false;
+
+        autofillSchedule(parsed, options);
+        return true;
+    }
+
+    async function handleClipboardButtonClick() {
+        console.info('Paste helper: attempting to read clipboard or fallback text.');
+        let pastedText = '';
+
+        if (navigator.clipboard?.readText) {
+            try {
+                pastedText = await navigator.clipboard.readText();
+            } catch (error) {
+                console.warn('Paste helper: clipboard read failed.', error);
+            }
+        }
+
+        if (!pastedText) {
+            const fallbackText = startMorningInput.value;
+            if (fallbackText) {
+                console.info('Paste helper: clipboard empty, using start morning field as fallback.');
+                pastedText = fallbackText;
+            }
+        }
+
+        if (!pastedText) {
+            console.info('Paste helper: no text available for parsing.');
+            return;
+        }
+
+        const success = tryAutofillScheduleFromText(pastedText, { focusEndAfternoon: true });
+        if (success) {
+            console.info('Paste helper: schedule parsed successfully from text:', pastedText);
+        } else {
+            console.info('Paste helper: unable to parse schedule from text:', pastedText);
+        }
     }
 
     // Pré-remplir la date du jour
@@ -101,6 +187,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Initialiser la suggestion au chargement
     updateSuggestedEndAfternoon();
 
+    let isScheduleAutofilling = false;
+
+    startMorningInput.addEventListener('input', () => {
+        if (isScheduleAutofilling) return;
+
+        const rawValue = startMorningInput.value;
+        if (!rawValue || !/[\s\-–—]/.test(rawValue)) return;
+
+        tryAutofillScheduleFromText(rawValue);
+    });
+
+    startMorningInput.addEventListener('paste', async (event) => {
+        let pastedText = event.clipboardData?.getData('text') || '';
+
+        if (!pastedText && navigator.clipboard?.readText) {
+            try {
+                pastedText = await navigator.clipboard.readText();
+            } catch {}
+        }
+
+        if (!tryAutofillScheduleFromText(pastedText, { focusEndAfternoon: true })) return;
+
+        event.preventDefault();
+    });
+
     // Initialisation du solde à la première visite
     let lastBalance = getLocalStorageItem('workHoursBalance', null);
 
@@ -108,6 +219,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Charger l'état du paramètre auto-advance depuis localStorage
     const autoAdvanceEnabled = getLocalStorageItem('autoAdvanceEnabled', true);
     autoAdvanceCheckbox.checked = autoAdvanceEnabled;
+
+    const pasteButtonEnabled = getLocalStorageItem('pasteButtonEnabled', false);
+
+    function updatePasteButtonState(enabled) {
+        if (!applyClipboardButton) return;
+        applyClipboardButton.disabled = !enabled;
+        applyClipboardButton.hidden = !enabled;
+    }
+
+    if (pasteButtonToggle) {
+        pasteButtonToggle.checked = pasteButtonEnabled;
+        updatePasteButtonState(pasteButtonEnabled);
+    } else {
+        updatePasteButtonState(pasteButtonEnabled);
+    }
 
     const savedSummaryFormat = getLocalStorageItem('summaryFormat', SUMMARY_FORMATS.DATE_TIMES_WITH_DETAILS);
     const summaryFormatToUse = Object.values(SUMMARY_FORMATS).includes(savedSummaryFormat)
@@ -198,6 +324,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Sauvegarder le paramètre auto-advance
     autoAdvanceCheckbox.addEventListener('change', () => {
         setLocalStorageItem('autoAdvanceEnabled', autoAdvanceCheckbox.checked);
+    });
+
+    pasteButtonToggle?.addEventListener('change', () => {
+        const enabled = pasteButtonToggle.checked;
+        setLocalStorageItem('pasteButtonEnabled', enabled);
+        updatePasteButtonState(enabled);
+    });
+
+    applyClipboardButton?.addEventListener('click', async () => {
+        if (applyClipboardButton.disabled) return;
+        await handleClipboardButtonClick();
     });
 
     summaryFormatSelect?.addEventListener('change', () => {

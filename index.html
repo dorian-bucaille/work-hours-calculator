@@ -68,6 +68,11 @@
                             <div id="suggested-end-afternoon"></div>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <button type="button" id="apply-clipboard-schedule" class="btn btn--ghost" data-i18n="applyClipboardSchedule" disabled hidden>
+                            Use clipboard schedule
+                        </button>
+                    </div>
                     <div class="form-group-grid">
                         <div class="form-group">
                             <label for="balance-sign" data-i18n="balanceSign">Balance sign:</label>
@@ -116,6 +121,13 @@
                     <label for="auto-advance" data-i18n="autoAdvance">Auto-advance between fields</label>
                     <label class="switch">
                         <input type="checkbox" id="auto-advance">
+                        <span class="slider" aria-hidden="true"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label for="paste-button-toggle" data-i18n="enablePasteButton">Enable clipboard paste helper</label>
+                    <label class="switch">
+                        <input type="checkbox" id="paste-button-toggle">
                         <span class="slider" aria-hidden="true"></span>
                     </label>
                 </div>
