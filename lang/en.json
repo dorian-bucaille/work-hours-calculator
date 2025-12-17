@@ -24,6 +24,8 @@
   "goalWord": "goal",
   "settings": "Settings",
   "autoAdvance": "Auto-advance between fields",
+  "enablePasteButton": "Enable clipboard paste helper",
+  "applyClipboardSchedule": "Apply clipboard schedule",
   "display": "Display",
   "summaryFormat": "Summary line format",
   "summaryFormat_timesOnly": "08:25-12:15-13:15-17:15",

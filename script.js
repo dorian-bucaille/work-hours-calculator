@@ -30,6 +30,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const historyContainer = document.getElementById('history-container');
     const historyTitle = historyContainer.querySelector('h2');
     const suggestedEndAfternoonDiv = document.getElementById('suggested-end-afternoon');
+    const applyClipboardButton = document.getElementById('apply-clipboard-schedule');
+    const pasteButtonToggle = document.getElementById('paste-button-toggle');
     const formInputs = [
         startMorningInput,
         endMorningInput,
@@ -116,6 +118,39 @@ document.addEventListener('DOMContentLoaded', async () => {
         return true;
     }
 
+    async function handleClipboardButtonClick() {
+        console.info('Paste helper: attempting to read clipboard or fallback text.');
+        let pastedText = '';
+
+        if (navigator.clipboard?.readText) {
+            try {
+                pastedText = await navigator.clipboard.readText();
+            } catch (error) {
+                console.warn('Paste helper: clipboard read failed.', error);
+            }
+        }
+
+        if (!pastedText) {
+            const fallbackText = startMorningInput.value;
+            if (fallbackText) {
+                console.info('Paste helper: clipboard empty, using start morning field as fallback.');
+                pastedText = fallbackText;
+            }
+        }
+
+        if (!pastedText) {
+            console.info('Paste helper: no text available for parsing.');
+            return;
+        }
+
+        const success = tryAutofillScheduleFromText(pastedText, { focusEndAfternoon: true });
+        if (success) {
+            console.info('Paste helper: schedule parsed successfully from text:', pastedText);
+        } else {
+            console.info('Paste helper: unable to parse schedule from text:', pastedText);
+        }
+    }
+
     // Pré-remplir la date du jour
     dateInput.valueAsDate = new Date();
     goalInput.value = getLocalStorageItem('workHoursGoal', '07:22');
@@ -184,6 +219,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Charger l'état du paramètre auto-advance depuis localStorage
     const autoAdvanceEnabled = getLocalStorageItem('autoAdvanceEnabled', true);
     autoAdvanceCheckbox.checked = autoAdvanceEnabled;
+
+    const pasteButtonEnabled = getLocalStorageItem('pasteButtonEnabled', false);
+
+    function updatePasteButtonState(enabled) {
+        if (!applyClipboardButton) return;
+        applyClipboardButton.disabled = !enabled;
+    }
+
+    if (pasteButtonToggle) {
+        pasteButtonToggle.checked = pasteButtonEnabled;
+        updatePasteButtonState(pasteButtonEnabled);
+    } else {
+        updatePasteButtonState(pasteButtonEnabled);
+    }
 
     const savedSummaryFormat = getLocalStorageItem('summaryFormat', SUMMARY_FORMATS.DATE_TIMES_WITH_DETAILS);
     const summaryFormatToUse = Object.values(SUMMARY_FORMATS).includes(savedSummaryFormat)
@@ -274,6 +323,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Sauvegarder le paramètre auto-advance
     autoAdvanceCheckbox.addEventListener('change', () => {
         setLocalStorageItem('autoAdvanceEnabled', autoAdvanceCheckbox.checked);
+    });
+
+    pasteButtonToggle?.addEventListener('change', () => {
+        const enabled = pasteButtonToggle.checked;
+        setLocalStorageItem('pasteButtonEnabled', enabled);
+        updatePasteButtonState(enabled);
+    });
+
+    applyClipboardButton?.addEventListener('click', () => {
+        if (applyClipboardButton.disabled) return;
+        handleClipboardButtonClick();
     });
 
     summaryFormatSelect?.addEventListener('change', () => {
