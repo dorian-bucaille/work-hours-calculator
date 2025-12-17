@@ -93,6 +93,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         return normalizedParts;
     }
 
+    function autofillSchedule(parsedParts, { focusEndAfternoon = true } = {}) {
+        isScheduleAutofilling = true;
+        [
+            startMorningInput.value,
+            endMorningInput.value,
+            startAfternoonInput.value,
+            endAfternoonInput.value,
+        ] = parsedParts;
+        updateSuggestedEndAfternoon();
+        if (focusEndAfternoon) {
+            endAfternoonInput.focus();
+        }
+        isScheduleAutofilling = false;
+    }
+
+    function tryAutofillScheduleFromText(text, options = {}) {
+        const parsed = parseScheduleFromText(text);
+        if (!parsed) return false;
+
+        autofillSchedule(parsed, options);
+        return true;
+    }
+
     // Pré-remplir la date du jour
     dateInput.valueAsDate = new Date();
     goalInput.value = getLocalStorageItem('workHoursGoal', '07:22');
@@ -129,6 +152,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Initialiser la suggestion au chargement
     updateSuggestedEndAfternoon();
 
+    let isScheduleAutofilling = false;
+
+    startMorningInput.addEventListener('input', () => {
+        if (isScheduleAutofilling) return;
+
+        const rawValue = startMorningInput.value;
+        if (!rawValue || !/[\s\-–—]/.test(rawValue)) return;
+
+        tryAutofillScheduleFromText(rawValue);
+    });
+
     startMorningInput.addEventListener('paste', async (event) => {
         let pastedText = event.clipboardData?.getData('text') || '';
 
@@ -138,20 +172,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             } catch {}
         }
 
-        const parsed = parseScheduleFromText(pastedText);
-
-        if (!parsed) return;
+        if (!tryAutofillScheduleFromText(pastedText, { focusEndAfternoon: true })) return;
 
         event.preventDefault();
-        [
-            startMorningInput.value,
-            endMorningInput.value,
-            startAfternoonInput.value,
-            endAfternoonInput.value,
-        ] = parsed;
-
-        updateSuggestedEndAfternoon();
-        endAfternoonInput.focus();
     });
 
     // Initialisation du solde à la première visite
