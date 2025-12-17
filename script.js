@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const endMorningInput = document.getElementById('end-morning');
     const startAfternoonInput = document.getElementById('start-afternoon');
     const endAfternoonInput = document.getElementById('end-afternoon');
+    const themeToggleButton = document.getElementById('theme-toggle');
     const settingsButton = document.getElementById('settings-button');
     const settingsPanel = document.getElementById('settings-panel');
     const closeSettingsButton = document.getElementById('close-settings');
@@ -59,6 +60,69 @@ document.addEventListener('DOMContentLoaded', async () => {
             localStorage.setItem(key, JSON.stringify(value));
         } catch {}
     }
+
+    let savedThemePreference = getLocalStorageItem('theme', null);
+
+    function updateThemeToggleUI(theme) {
+        if (!themeToggleButton) return;
+        const isDark = theme === 'dark';
+        const labelSpan = themeToggleButton.querySelector('.theme-toggle__label');
+        const labelKey = isDark ? 'darkMode' : 'lightMode';
+        const ariaLabelKey = isDark ? 'aria_switchToLight' : 'aria_switchToDark';
+
+        if (labelSpan && window.i18n) {
+            labelSpan.setAttribute('data-i18n', labelKey);
+            labelSpan.textContent = window.i18n.translate(labelKey);
+        }
+
+        if (window.i18n) {
+            themeToggleButton.setAttribute('data-i18n-aria', ariaLabelKey);
+            themeToggleButton.setAttribute('aria-label', window.i18n.translate(ariaLabelKey));
+        }
+
+        themeToggleButton.setAttribute('aria-pressed', String(isDark));
+    }
+
+    function applyTheme(theme, { persist = true } = {}) {
+        const normalizedTheme = theme === 'dark' ? 'dark' : 'light';
+        document.body.classList.toggle('theme-dark', normalizedTheme === 'dark');
+        document.body.classList.toggle('theme-light', normalizedTheme === 'light');
+
+        if (persist) {
+            savedThemePreference = normalizedTheme;
+            setLocalStorageItem('theme', normalizedTheme);
+        }
+
+        updateThemeToggleUI(normalizedTheme);
+    }
+
+    const prefersDarkMedia = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+    const initialTheme = (savedThemePreference === 'dark' || savedThemePreference === 'light')
+        ? savedThemePreference
+        : (prefersDarkMedia?.matches ? 'dark' : 'light');
+    applyTheme(initialTheme, { persist: !!savedThemePreference });
+
+    themeToggleButton?.addEventListener('click', () => {
+        const nextTheme = document.body.classList.contains('theme-dark') ? 'light' : 'dark';
+        applyTheme(nextTheme);
+    });
+
+    if (prefersDarkMedia?.addEventListener) {
+        prefersDarkMedia.addEventListener('change', (event) => {
+            if (savedThemePreference) return;
+            applyTheme(event.matches ? 'dark' : 'light', { persist: false });
+        });
+    } else if (prefersDarkMedia?.addListener) {
+        prefersDarkMedia.addListener((event) => {
+            if (savedThemePreference) return;
+            applyTheme(event.matches ? 'dark' : 'light', { persist: false });
+        });
+    }
+
+    document.addEventListener('i18n-language-changed', () => {
+        const currentTheme = document.body.classList.contains('theme-dark') ? 'dark' : 'light';
+        updateThemeToggleUI(currentTheme);
+    });
 
     // Sécurise l'injection de texte dans le DOM
     function escapeHTML(str) {
