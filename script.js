@@ -225,6 +225,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     function updatePasteButtonState(enabled) {
         if (!applyClipboardButton) return;
         applyClipboardButton.disabled = !enabled;
+        applyClipboardButton.hidden = !enabled;
     }
 
     if (pasteButtonToggle) {
@@ -331,9 +332,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         updatePasteButtonState(enabled);
     });
 
-    applyClipboardButton?.addEventListener('click', () => {
+    applyClipboardButton?.addEventListener('click', async () => {
         if (applyClipboardButton.disabled) return;
-        handleClipboardButtonClick();
+        await handleClipboardButtonClick();
     });
 
     summaryFormatSelect?.addEventListener('change', () => {
