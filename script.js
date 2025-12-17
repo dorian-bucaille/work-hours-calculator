@@ -68,7 +68,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     function parseScheduleFromText(text) {
         const parts = text
             .trim()
-            .split(/[-\s]+/)
+            // Support dash variants that can appear when copying text
+            .split(/[\s\-–—]+/)
             .map(part => part.trim())
             .filter(Boolean);
 
@@ -128,8 +129,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Initialiser la suggestion au chargement
     updateSuggestedEndAfternoon();
 
-    startMorningInput.addEventListener('paste', (event) => {
-        const pastedText = event.clipboardData?.getData('text') || '';
+    startMorningInput.addEventListener('paste', async (event) => {
+        let pastedText = event.clipboardData?.getData('text') || '';
+
+        if (!pastedText && navigator.clipboard?.readText) {
+            try {
+                pastedText = await navigator.clipboard.readText();
+            } catch {}
+        }
+
         const parsed = parseScheduleFromText(pastedText);
 
         if (!parsed) return;
