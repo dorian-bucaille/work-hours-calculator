@@ -7,6 +7,9 @@ body.theme-light {
     --surface: #ffffff;
     --surface-alt: #f5f7fb;
     --surface-muted: rgba(255, 255, 255, 0.7);
+    --input-bg: rgba(255, 255, 255, 0.95);
+    --input-border: var(--border-color);
+    --input-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.05);
     --text-primary: #0f172a;
     --text-secondary: #475569;
     --border-color: #d6deeb;
@@ -29,6 +32,9 @@ body.theme-light {
         --surface: #16213a;
         --surface-alt: rgba(19, 32, 54, 0.92);
         --surface-muted: rgba(22, 33, 58, 0.7);
+        --input-bg: rgba(30, 42, 73, 0.9);
+        --input-border: rgba(148, 163, 184, 0.55);
+        --input-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
         --text-primary: #f8fafc;
         --text-secondary: #cbd5f5;
         --border-color: rgba(148, 163, 184, 0.35);
@@ -51,6 +57,9 @@ body.theme-dark {
     --surface: #16213a;
     --surface-alt: rgba(19, 32, 54, 0.92);
     --surface-muted: rgba(22, 33, 58, 0.7);
+    --input-bg: rgba(30, 42, 73, 0.9);
+    --input-border: rgba(148, 163, 184, 0.55);
+    --input-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
     --text-primary: #f8fafc;
     --text-secondary: #cbd5f5;
     --border-color: rgba(148, 163, 184, 0.35);
@@ -319,24 +328,18 @@ input[type="date"],
 select {
     width: 100%;
     padding: 0.8rem 0.9rem;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--input-border);
     border-radius: 14px;
-    background: rgba(255, 255, 255, 0.85);
+    background: var(--input-bg);
     color: var(--text-primary);
     font-size: 1rem;
     transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-    box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.05);
+    box-shadow: var(--input-shadow);
 }
 
-@media (prefers-color-scheme: dark) {
-    input[type="text"],
-    input[type="time"],
-    input[type="number"],
-    input[type="date"],
-    select {
-        background: rgba(17, 27, 46, 0.75);
-        border-color: var(--border-color);
-    }
+input::placeholder,
+select::placeholder {
+    color: var(--text-secondary);
 }
 
 input[type="text"]#balance-hhmm {
