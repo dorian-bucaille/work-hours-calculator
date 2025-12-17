@@ -332,6 +332,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Gérer l'ouverture/fermeture du panneau des paramètres
     let lastFocusedElement = null;
+    let settingsFocusableElements = [];
+    let firstSettingsFocusable = null;
+    let lastSettingsFocusable = null;
+
+    function updateSettingsFocusableElements() {
+        if (!settingsPanel) return;
+
+        settingsFocusableElements = Array.from(settingsPanel.querySelectorAll(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )).filter(el => !el.hasAttribute('disabled') && el.getAttribute('aria-hidden') !== 'true');
+
+        firstSettingsFocusable = settingsFocusableElements[0] || null;
+        lastSettingsFocusable = settingsFocusableElements[settingsFocusableElements.length - 1] || null;
+    }
 
     function openSettingsPanel() {
         if (!settingsPanel || settingsPanel.classList.contains('open')) return;
@@ -343,8 +357,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             settingsBackdrop.hidden = false;
             settingsBackdrop.classList.add('is-visible');
         }
+        updateSettingsFocusableElements();
         requestAnimationFrame(() => {
-            closeSettingsButton?.focus();
+            const elementToFocus = firstSettingsFocusable || settingsPanel;
+            elementToFocus?.focus();
         });
     }
 
@@ -382,6 +398,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (event.key === 'Escape' && settingsPanel.classList.contains('open')) {
             event.preventDefault();
             closeSettingsPanel();
+        }
+        if (event.key === 'Tab' && settingsPanel.classList.contains('open')) {
+            if (!firstSettingsFocusable || !lastSettingsFocusable) return;
+
+            const isShift = event.shiftKey;
+            const activeElement = document.activeElement;
+            const isFocusOutsidePanel = !settingsPanel.contains(activeElement);
+
+            if (!isShift) {
+                if (activeElement === lastSettingsFocusable || isFocusOutsidePanel) {
+                    event.preventDefault();
+                    firstSettingsFocusable.focus();
+                }
+            } else {
+                if (activeElement === firstSettingsFocusable || isFocusOutsidePanel) {
+                    event.preventDefault();
+                    lastSettingsFocusable.focus();
+                }
+            }
         }
     });
 
