@@ -40,5 +40,7 @@
   "historyOrderAsc": "Oudste eerst",
   "historyOrderDesc": "Nieuwste eerst",
   "clearHistory": "Geschiedenis wissen",
-  "exportHistory": "Geschiedenis exporteren"
+  "exportHistory": "Geschiedenis exporteren",
+  "expandHistory": "Volledige geschiedenis tonen",
+  "collapseHistory": "Minder weergeven"
 }
