@@ -5,6 +5,8 @@
 [![PWA Ready](https://img.shields.io/badge/PWA-ready-blue)](https://workhourscalculator.netlify.app/)
 [![No Dependencies](https://img.shields.io/badge/dependencies-none-lightgrey)](https://workhourscalculator.netlify.app/)
 
+<img width="1175" height="924" alt="image" src="https://github.com/user-attachments/assets/14e0b330-7571-4991-9372-b65b691d6a85" />
+
 A lightweight web application for tracking daily work hours with automatic balance calculation.
 
 ## Overview
@@ -39,5 +41,6 @@ Contributions are welcome! Feel free to open issues or submit pull requests.
 
 ## License
 MIT
+
 
 
