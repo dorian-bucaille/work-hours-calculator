@@ -1,5 +1,10 @@
 # 🕰️ Work Hours Calculator
 
+[![Netlify Status](https://img.shields.io/badge/Netlify-live-success?logo=netlify)](https://workhourscalculator.netlify.app/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![PWA Ready](https://img.shields.io/badge/PWA-ready-blue)](https://workhourscalculator.netlify.app/)
+[![No Dependencies](https://img.shields.io/badge/dependencies-none-lightgrey)](https://workhourscalculator.netlify.app/)
+
 A lightweight web application for tracking daily work hours with automatic balance calculation.
 
 ## Overview
@@ -34,4 +39,5 @@ Contributions are welcome! Feel free to open issues or submit pull requests.
 
 ## License
 MIT
+
 
