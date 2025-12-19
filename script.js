@@ -146,13 +146,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateHistoryTruncation();
     });
 
-    // Sécurise l'injection de texte dans le DOM
-    function escapeHTML(str) {
-        return String(str).replace(/[&<>"']/g, function (c) {
-            return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]);
-        });
-    }
-
     function autofillSchedule(parsedParts, { focusEndAfternoon = true } = {}) {
         isScheduleAutofilling = true;
         [
@@ -528,7 +521,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             updateSuggestedEndAfternoon();
 
         } catch (error) {
-            resultDiv.innerHTML = `<p role="alert">Erreur: ${escapeHTML(error.message)}</p>`;
+            const message = error?.message ? `Erreur: ${error.message}` : 'Erreur: erreur inattendue.';
+            const errorNode = document.createElement('p');
+            errorNode.setAttribute('role', 'alert');
+            errorNode.textContent = message;
+            resultDiv.replaceChildren(errorNode);
             resultDiv.classList.add('visible');
         }
     });
