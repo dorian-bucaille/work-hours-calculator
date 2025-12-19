@@ -1,16 +1,7 @@
-document.addEventListener('DOMContentLoaded', async () => {
-    // Wait for i18n to initialize
-    await new Promise(resolve => {
-        if (window.i18n) {
-            resolve();
-        } else {
-            document.addEventListener('i18n-ready', resolve, { once: true });
-        }
-    });
-
+document.addEventListener('DOMContentLoaded', () => {
     const core = window.workHoursCore;
-    if (!core) {
-        console.error('Missing workHoursCore utilities.');
+    if (!core || !window.i18n) {
+        console.error('Missing initialization for core utilities or i18n.');
         return;
     }
     const {
@@ -451,21 +442,42 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateHistoryTruncation();
     });
 
+    function createHistoryEntry(summaryLine, idx) {
+        const li = document.createElement('li');
+        li.textContent = summaryLine;
+        const delBtn = document.createElement('button');
+        delBtn.classList.add('history-delete-button');
+        delBtn.textContent = '✕';
+        const deleteText = window.i18n.translate('aria_deleteEntry');
+        delBtn.title = deleteText;
+        delBtn.setAttribute('aria-label', deleteText);
+        delBtn.addEventListener('click', () => {
+            // Supprimer l'entrée de l'historique
+            const currentHistory = getLocalStorageItem('workHoursHistory', []);
+            currentHistory.splice(idx, 1);
+            setLocalStorageItem('workHoursHistory', currentHistory);
+            li.remove();
+            updateHistoryVisibility();
+        });
+        li.appendChild(delBtn);
+        return li;
+    }
+
     // Fonction pour charger et afficher l'historique
     function loadHistory() {
         const history = getLocalStorageItem('workHoursHistory', []);
         // Trier l'historique selon l'ordre sélectionné
-        const sortedHistory = historyOrder === 'desc' 
-            ? [...history].reverse() 
+        const sortedHistory = historyOrder === 'desc'
+            ? [...history].reverse()
             : [...history];
-        // Vider la liste actuelle
-        historyList.innerHTML = '';
+        const fragment = document.createDocumentFragment();
         // Ajouter chaque entrée dans l'ordre correct
         sortedHistory.forEach((item, idx) => {
             // Calculer l'index réel dans l'historique complet
             const realIdx = historyOrder === 'desc' ? (history.length - 1 - idx) : idx;
-            addHistoryEntry(item, realIdx);
+            fragment.appendChild(createHistoryEntry(item, realIdx));
         });
+        historyList.replaceChildren(fragment);
         updateHistoryVisibility();
     }
 
@@ -653,24 +665,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function addHistoryEntry(summaryLine, idx) {
-        const li = document.createElement('li');
-        li.textContent = summaryLine;
-        const delBtn = document.createElement('button');
-        delBtn.classList.add('history-delete-button');
-        delBtn.textContent = '✕';
-        const deleteText = window.i18n.translate('aria_deleteEntry');
-        delBtn.title = deleteText;
-        delBtn.setAttribute('aria-label', deleteText);
-        delBtn.addEventListener('click', () => {
-            // Supprimer l'entrée de l'historique
-            const currentHistory = getLocalStorageItem('workHoursHistory', []);
-            currentHistory.splice(idx, 1);
-            setLocalStorageItem('workHoursHistory', currentHistory);
-            li.remove();
-            updateHistoryVisibility();
-        });
-        li.appendChild(delBtn);
-        historyList.appendChild(li);
+        historyList.appendChild(createHistoryEntry(summaryLine, idx));
         updateHistoryVisibility();
     }
 });
