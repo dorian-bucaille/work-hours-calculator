@@ -68,10 +68,6 @@ npm run lighthouse
 
 Contributions are welcome! Feel free to open issues or submit pull requests.
 
-## TODO
-
-- Optimize and slim down unused code/assets to keep the app fast and reliable.
-
 ## License
 
 MIT
