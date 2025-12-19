@@ -28,6 +28,13 @@ cd work-hours-calculator
 # Open index.html in your browser
 ```
 
+## Tests
+Run the lightweight unit tests with:
+
+```bash
+npm test
+```
+
 ## Features
 - Daily work hours calculation
 - Running hours balance tracking
