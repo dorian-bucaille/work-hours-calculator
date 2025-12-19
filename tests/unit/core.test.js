@@ -1,7 +1,7 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
 
-const core = require('../js/core.js');
+const core = require('../../js/core.js');
 
 test('parseScheduleFromText normalizes 4 time segments', () => {
     const parsed = core.parseScheduleFromText('8:05-12:15-13:15-17:20');

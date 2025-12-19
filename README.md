@@ -32,7 +32,15 @@ cd work-hours-calculator
 Run the lightweight unit tests with:
 
 ```bash
+npm install
 npm test
+```
+
+Run end-to-end checks with Playwright:
+
+```bash
+npx playwright install --with-deps
+npm run test:e2e
 ```
 
 ## Features
