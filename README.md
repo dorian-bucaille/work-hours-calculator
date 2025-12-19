@@ -10,6 +10,7 @@
 A lightweight web application for tracking daily work hours with automatic balance calculation.
 
 ## Overview
+
 - Track daily work hours with morning/afternoon periods
 - Maintain a running balance of work hours
 - View and export work history
@@ -17,9 +18,11 @@ A lightweight web application for tracking daily work hours with automatic balan
 - No dependencies, just vanilla JavaScript
 
 ## Demo
-https://workhourscalculator.netlify.app/
+
+<https://workhourscalculator.netlify.app/>
 
 ## Installation
+
 No build step or dependencies required. Simply clone the repository and open `index.html` in your browser.
 
 ```bash
@@ -29,6 +32,7 @@ cd work-hours-calculator
 ```
 
 ## Tests
+
 Run the lightweight unit tests with:
 
 ```bash
@@ -44,6 +48,7 @@ npm run test:e2e
 ```
 
 ## Features
+
 - Daily work hours calculation
 - Running hours balance tracking
 - History view with JSON export
@@ -52,15 +57,14 @@ npm run test:e2e
 - Offline capable (PWA)
 
 ## Contributing
+
 Contributions are welcome! Feel free to open issues or submit pull requests.
 
 ## TODO
-- Add meaningful unit tests for core logic (time calculations, parsing, exports).
+
 - Add Lighthouse checks (target 90+ per category, ideally 100) and automate via CI/CD.
 - Optimize and slim down unused code/assets to keep the app fast and reliable.
 
 ## License
+
 MIT
-
-
-
