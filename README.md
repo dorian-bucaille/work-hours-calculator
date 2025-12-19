@@ -39,6 +39,11 @@ cd work-hours-calculator
 ## Contributing
 Contributions are welcome! Feel free to open issues or submit pull requests.
 
+## TODO
+- Add meaningful unit tests for core logic (time calculations, parsing, exports).
+- Add Lighthouse checks (target 90+ per category, ideally 100) and automate via CI/CD.
+- Optimize and slim down unused code/assets to keep the app fast and reliable.
+
 ## License
 MIT
 
