@@ -177,36 +177,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     async function handleClipboardButtonClick() {
-        console.info('Paste helper: attempting to read clipboard or fallback text.');
         let pastedText = '';
 
         if (navigator.clipboard?.readText) {
             try {
                 pastedText = await navigator.clipboard.readText();
             } catch (error) {
-                console.warn('Paste helper: clipboard read failed.', error);
             }
         }
 
         if (!pastedText) {
             const fallbackText = startMorningInput.value;
             if (fallbackText) {
-                console.info('Paste helper: clipboard empty, using start morning field as fallback.');
                 pastedText = fallbackText;
             }
         }
 
         if (!pastedText) {
-            console.info('Paste helper: no text available for parsing.');
             return;
         }
 
-        const success = tryAutofillScheduleFromText(pastedText, { focusEndAfternoon: true });
-        if (success) {
-            console.info('Paste helper: schedule parsed successfully from text:', pastedText);
-        } else {
-            console.info('Paste helper: unable to parse schedule from text:', pastedText);
-        }
+        tryAutofillScheduleFromText(pastedText, { focusEndAfternoon: true });
     }
 
     // Pré-remplir la date du jour

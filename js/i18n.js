@@ -98,8 +98,6 @@ class I18nManager {
                     } else {
                         element.textContent = contentTranslation;
                     }
-                } else {
-                    console.warn(`Translation missing for content key: ${contentKey}`);
                 }
             }
             
@@ -112,8 +110,6 @@ class I18nManager {
                     if (element.hasAttribute('title')) {
                         element.setAttribute('title', ariaTranslation);
                     }
-                } else {
-                    console.warn(`Translation missing for aria key: ${ariaKey}`);
                 }
             }
         });
@@ -126,9 +122,5 @@ class I18nManager {
 
 // Initialize the i18n manager when the DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    window.i18n = new I18nManager({
-        defaultLang: 'en',
-        supportedLangs: ['en', 'fr', 'es', 'de', 'it', 'nl', 'pt'],
-        langPath: '/lang/'
-    });
+    window.i18n = new I18nManager();
 });
