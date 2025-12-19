@@ -305,6 +305,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let firstSettingsFocusable = null;
     let lastSettingsFocusable = null;
 
+    if (settingsPanel) {
+        settingsPanel.inert = settingsPanel.getAttribute('aria-hidden') === 'true';
+    }
+
     function updateSettingsFocusableElements() {
         if (!settingsPanel) return;
 
@@ -321,6 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
         lastFocusedElement = document.activeElement;
         settingsPanel.classList.add('open');
         settingsPanel.setAttribute('aria-hidden', 'false');
+        settingsPanel.inert = false;
         document.body.classList.add('settings-open');
         if (settingsBackdrop) {
             settingsBackdrop.hidden = false;
@@ -337,6 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!settingsPanel || !settingsPanel.classList.contains('open')) return;
         settingsPanel.classList.remove('open');
         settingsPanel.setAttribute('aria-hidden', 'true');
+        settingsPanel.inert = true;
         document.body.classList.remove('settings-open');
         if (settingsBackdrop) {
             settingsBackdrop.classList.remove('is-visible');
