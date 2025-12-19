@@ -62,7 +62,7 @@ npm run lighthouse
 - History view with JSON export
 - Responsive design
 - Keyboard navigation support
-- Offline capable (PWA)
+- Offline capable (PWA shell)
 
 ## Contributing
 
