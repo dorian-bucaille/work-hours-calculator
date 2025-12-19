@@ -1,16 +1,7 @@
-document.addEventListener('DOMContentLoaded', async () => {
-    // Wait for i18n to initialize
-    await new Promise(resolve => {
-        if (window.i18n) {
-            resolve();
-        } else {
-            document.addEventListener('i18n-ready', resolve, { once: true });
-        }
-    });
-
+document.addEventListener('DOMContentLoaded', () => {
     const core = window.workHoursCore;
-    if (!core) {
-        console.error('Missing workHoursCore utilities.');
+    if (!core || !window.i18n) {
+        console.error('Missing initialization for core utilities or i18n.');
         return;
     }
     const {
@@ -146,13 +137,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateHistoryTruncation();
     });
 
-    // Sécurise l'injection de texte dans le DOM
-    function escapeHTML(str) {
-        return String(str).replace(/[&<>"']/g, function (c) {
-            return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]);
-        });
-    }
-
     function autofillSchedule(parsedParts, { focusEndAfternoon = true } = {}) {
         isScheduleAutofilling = true;
         [
@@ -177,36 +161,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     async function handleClipboardButtonClick() {
-        console.info('Paste helper: attempting to read clipboard or fallback text.');
         let pastedText = '';
 
         if (navigator.clipboard?.readText) {
             try {
                 pastedText = await navigator.clipboard.readText();
             } catch (error) {
-                console.warn('Paste helper: clipboard read failed.', error);
             }
         }
 
         if (!pastedText) {
             const fallbackText = startMorningInput.value;
             if (fallbackText) {
-                console.info('Paste helper: clipboard empty, using start morning field as fallback.');
                 pastedText = fallbackText;
             }
         }
 
         if (!pastedText) {
-            console.info('Paste helper: no text available for parsing.');
             return;
         }
 
-        const success = tryAutofillScheduleFromText(pastedText, { focusEndAfternoon: true });
-        if (success) {
-            console.info('Paste helper: schedule parsed successfully from text:', pastedText);
-        } else {
-            console.info('Paste helper: unable to parse schedule from text:', pastedText);
-        }
+        tryAutofillScheduleFromText(pastedText, { focusEndAfternoon: true });
     }
 
     // Pré-remplir la date du jour
@@ -330,6 +305,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     let firstSettingsFocusable = null;
     let lastSettingsFocusable = null;
 
+    if (settingsPanel) {
+        settingsPanel.inert = settingsPanel.getAttribute('aria-hidden') === 'true';
+    }
+
     function updateSettingsFocusableElements() {
         if (!settingsPanel) return;
 
@@ -346,6 +325,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         lastFocusedElement = document.activeElement;
         settingsPanel.classList.add('open');
         settingsPanel.setAttribute('aria-hidden', 'false');
+        settingsPanel.inert = false;
         document.body.classList.add('settings-open');
         if (settingsBackdrop) {
             settingsBackdrop.hidden = false;
@@ -362,6 +342,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!settingsPanel || !settingsPanel.classList.contains('open')) return;
         settingsPanel.classList.remove('open');
         settingsPanel.setAttribute('aria-hidden', 'true');
+        settingsPanel.inert = true;
         document.body.classList.remove('settings-open');
         if (settingsBackdrop) {
             settingsBackdrop.classList.remove('is-visible');
@@ -467,21 +448,42 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateHistoryTruncation();
     });
 
+    function createHistoryEntry(summaryLine, idx) {
+        const li = document.createElement('li');
+        li.textContent = summaryLine;
+        const delBtn = document.createElement('button');
+        delBtn.classList.add('history-delete-button');
+        delBtn.textContent = '✕';
+        const deleteText = window.i18n.translate('aria_deleteEntry');
+        delBtn.title = deleteText;
+        delBtn.setAttribute('aria-label', deleteText);
+        delBtn.addEventListener('click', () => {
+            // Supprimer l'entrée de l'historique
+            const currentHistory = getLocalStorageItem('workHoursHistory', []);
+            currentHistory.splice(idx, 1);
+            setLocalStorageItem('workHoursHistory', currentHistory);
+            li.remove();
+            updateHistoryVisibility();
+        });
+        li.appendChild(delBtn);
+        return li;
+    }
+
     // Fonction pour charger et afficher l'historique
     function loadHistory() {
         const history = getLocalStorageItem('workHoursHistory', []);
         // Trier l'historique selon l'ordre sélectionné
-        const sortedHistory = historyOrder === 'desc' 
-            ? [...history].reverse() 
+        const sortedHistory = historyOrder === 'desc'
+            ? [...history].reverse()
             : [...history];
-        // Vider la liste actuelle
-        historyList.innerHTML = '';
+        const fragment = document.createDocumentFragment();
         // Ajouter chaque entrée dans l'ordre correct
         sortedHistory.forEach((item, idx) => {
             // Calculer l'index réel dans l'historique complet
             const realIdx = historyOrder === 'desc' ? (history.length - 1 - idx) : idx;
-            addHistoryEntry(item, realIdx);
+            fragment.appendChild(createHistoryEntry(item, realIdx));
         });
+        historyList.replaceChildren(fragment);
         updateHistoryVisibility();
     }
 
@@ -537,7 +539,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             updateSuggestedEndAfternoon();
 
         } catch (error) {
-            resultDiv.innerHTML = `<p role="alert">Erreur: ${escapeHTML(error.message)}</p>`;
+            const message = error?.message ? `Erreur: ${error.message}` : 'Erreur: erreur inattendue.';
+            const errorNode = document.createElement('p');
+            errorNode.setAttribute('role', 'alert');
+            errorNode.textContent = message;
+            resultDiv.replaceChildren(errorNode);
             resultDiv.classList.add('visible');
         }
     });
@@ -665,24 +671,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function addHistoryEntry(summaryLine, idx) {
-        const li = document.createElement('li');
-        li.textContent = summaryLine;
-        const delBtn = document.createElement('button');
-        delBtn.classList.add('history-delete-button');
-        delBtn.textContent = '✕';
-        const deleteText = window.i18n.translate('aria_deleteEntry');
-        delBtn.title = deleteText;
-        delBtn.setAttribute('aria-label', deleteText);
-        delBtn.addEventListener('click', () => {
-            // Supprimer l'entrée de l'historique
-            const currentHistory = getLocalStorageItem('workHoursHistory', []);
-            currentHistory.splice(idx, 1);
-            setLocalStorageItem('workHoursHistory', currentHistory);
-            li.remove();
-            updateHistoryVisibility();
-        });
-        li.appendChild(delBtn);
-        historyList.appendChild(li);
+        historyList.appendChild(createHistoryEntry(summaryLine, idx));
         updateHistoryVisibility();
     }
 });
