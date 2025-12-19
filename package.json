@@ -5,9 +5,11 @@
     "test": "npm run test:unit",
     "test:unit": "node --test tests/unit/*.test.js",
     "test:e2e": "playwright test",
-    "test:ci": "npm run test:unit && npm run test:e2e"
+    "test:ci": "npm run test:unit && npm run test:e2e",
+    "lighthouse": "lhci autorun"
   },
   "devDependencies": {
+    "@lhci/cli": "^0.14.0",
     "@playwright/test": "^1.50.1",
     "http-server": "^14.1.1"
   }

@@ -47,6 +47,14 @@ npx playwright install --with-deps
 npm run test:e2e
 ```
 
+## Lighthouse
+
+Run Lighthouse CI locally (targets 90+ per category):
+
+```bash
+npm run lighthouse
+```
+
 ## Features
 
 - Daily work hours calculation
@@ -54,7 +62,7 @@ npm run test:e2e
 - History view with JSON export
 - Responsive design
 - Keyboard navigation support
-- Offline capable (PWA)
+- Offline capable (PWA shell)
 
 ## Contributing
 
@@ -62,7 +70,6 @@ Contributions are welcome! Feel free to open issues or submit pull requests.
 
 ## TODO
 
-- Add Lighthouse checks (target 90+ per category, ideally 100) and automate via CI/CD.
 - Optimize and slim down unused code/assets to keep the app fast and reliable.
 
 ## License
