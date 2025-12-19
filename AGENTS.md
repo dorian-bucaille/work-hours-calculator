@@ -15,6 +15,7 @@
 - Install dev dependencies (for tests/CI): `npm install`.
 - Run unit tests: `npm test` (alias for `npm run test:unit`).
 - Run end-to-end tests: `npm run test:e2e` (requires Playwright browsers).
+- Run Lighthouse CI locally: `npm run lighthouse`.
 
 ## Coding Style & Naming Conventions
 - Vanilla JavaScript and CSS only; avoid adding dependencies without a clear reason.
@@ -26,6 +27,7 @@
 - Unit tests cover parsing, calculations, and formatting (`tests/unit`).
 - Playwright e2e tests validate core flows: calculations, history, settings, and theme (`tests/e2e`).
 - Manual checks still expected for export downloads, i18n copy, and PWA behavior.
+- Lighthouse CI enforces 90+ scores on all categories.
 
 ## Commit & Pull Request Guidelines
 - Recent commits use short, imperative subjects; type prefixes like `docs:` appear in history.
@@ -36,6 +38,7 @@
 ## CI Notes
 - GitHub Actions runs unit + e2e tests via `.github/workflows/ci.yml`.
 - Playwright installs browsers with `npx playwright install --with-deps` in CI.
+- Lighthouse CI runs via `npm run lighthouse` in the CI workflow.
 
 ## Configuration & Data Notes
 - User data is stored in `localStorage`; avoid breaking existing keys when changing storage shapes.
